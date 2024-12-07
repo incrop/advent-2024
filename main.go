@@ -5,6 +5,7 @@ import (
 	"image/color"
 	"os"
 	"strconv"
+	"strings"
 
 	tea "github.com/charmbracelet/bubbletea/v2"
 	"github.com/charmbracelet/lipgloss/v2"
@@ -25,6 +26,7 @@ type model struct {
 	presets         *loadedPresets
 	originalBgColor *color.Color
 	selectedDay     int
+	inputScroll     [25]int
 	selectedPreset  [25]int
 	selectedPart    [25]int
 	answer          *int64
@@ -62,17 +64,32 @@ func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	case tea.KeyMsg:
 		switch msg.String() {
 		case "up":
-			if m.state == CalendarState {
+			switch m.state {
+			case CalendarState:
 				m.selectedDay--
 				if m.selectedDay < 0 {
 					m.selectedDay = len(m.presets.ascii) - 1
 				}
+			case DayState:
+				if m.inputScroll[m.selectedDay] > 0 {
+					m.inputScroll[m.selectedDay]--
+				}
 			}
 		case "down":
-			if m.state == CalendarState {
+			switch m.state {
+			case CalendarState:
 				m.selectedDay++
 				if m.selectedDay >= len(m.presets.ascii) {
 					m.selectedDay = 0
+				}
+			case DayState:
+				maxScroll := 0
+				if m.size != nil {
+					input := m.presets.input(m.selectedDay, m.selectedPreset[m.selectedDay])
+					maxScroll = len(input) - m.size.Height + 6
+				}
+				if m.inputScroll[m.selectedDay] < maxScroll {
+					m.inputScroll[m.selectedDay]++
 				}
 			}
 		case "enter":
@@ -87,6 +104,15 @@ func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		case "right":
 			if m.state == DayState {
 				m.selectedPart[m.selectedDay] = 1
+			}
+		case "1", "2", "3", "4", "5", "6", "7", "8", "9":
+			if m.state == DayState {
+				nextNum := int(msg.String()[0] - '0')
+				for _, preset := range m.presets.days[m.selectedDay] {
+					if preset.num == nextNum {
+						m.selectedPreset[m.selectedDay] = nextNum
+					}
+				}
 			}
 		case "esc", "q":
 			if m.state == CalendarState {
@@ -195,10 +221,14 @@ func (m model) calendarSelectView() string {
 }
 
 func (m model) inputAndLogView() string {
+	input := m.presets.input(m.selectedDay, m.selectedPreset[m.selectedDay])
+	scrollTop := m.inputScroll[m.selectedDay]
+	scrollBottom := min(scrollTop+m.size.Height-6, len(input)-1)
+	window := input[scrollTop:scrollBottom]
 	return dataStyle.
 		Height(m.size.Height - 6).
 		MarginLeft(1).
-		Render("le body")
+		Render(strings.Join(window, "\n"))
 }
 
 func (m model) footerView() string {
