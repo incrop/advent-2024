@@ -29,6 +29,7 @@ type model struct {
 	inputScroll     [25]int
 	selectedPreset  [25]int
 	selectedPart    [25]int
+	calculations    [25]Calculate
 	answer          *int64
 }
 
@@ -36,6 +37,7 @@ func (m model) Init() (tea.Model, tea.Cmd) {
 	for i := range m.selectedPreset {
 		m.selectedPreset[i] = 1
 	}
+	m.calculations = collectCalculations()
 	return m, tea.Batch(
 		loadPresets,
 		tea.Sequence(
@@ -59,6 +61,10 @@ func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		m.presets = &msg
 	case tea.BackgroundColorMsg:
 		m.originalBgColor = &msg.Color
+	case AnswerMsg:
+		m.state = DayState
+		newAnswer := int64(msg)
+		m.answer = &newAnswer
 	case ExitMsg:
 		return m, tea.Quit
 	case tea.KeyMsg:
@@ -93,9 +99,18 @@ func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 				}
 			}
 		case "enter":
-			if m.state == CalendarState {
+			switch m.state {
+			case CalendarState:
 				m.state = DayState
 				m.answer = nil
+			case DayState:
+				calculate := m.calculations[m.selectedDay]
+				if calculate != nil {
+					m.state = CalculateState
+					m.answer = nil
+					input := m.presets.input(m.selectedDay, m.selectedPreset[m.selectedDay])
+					return m, calculateCmd(input, calculate, m.selectedPart[m.selectedDay])
+				}
 			}
 		case "left":
 			if m.state == DayState {
@@ -115,11 +130,13 @@ func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 				}
 			}
 		case "esc", "q":
-			if m.state == CalendarState {
+			switch m.state {
+			case CalendarState:
 				m.state = ExitState
 				return m, exit
+			case DayState:
+				m.state = CalendarState
 			}
-			m.state = CalendarState
 		case "ctrl+c":
 			m.state = ExitState
 			return m, exit
