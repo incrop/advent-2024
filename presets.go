@@ -6,7 +6,6 @@ import (
 	"os"
 	"regexp"
 	"strconv"
-	"strings"
 
 	tea "github.com/charmbracelet/bubbletea/v2"
 )
@@ -47,7 +46,7 @@ func loadPresets() tea.Msg {
 			log.Fatal(err)
 		}
 		tag := match[3]
-		lp.days[day] = append(lp.days[day], preset{
+		lp.days[day-1] = append(lp.days[day-1], preset{
 			num,
 			tag,
 			loadLines(e.Name()),
@@ -64,7 +63,7 @@ func loadLines(fileName string) (lines []string) {
 	defer file.Close()
 	scanner := bufio.NewScanner(file)
 	for scanner.Scan() {
-		lines = append(lines, strings.TrimSpace(scanner.Text()))
+		lines = append(lines, scanner.Text())
 	}
 	for len(lines) > 0 && lines[len(lines)-1] == "" {
 		lines = lines[0 : len(lines)-1]

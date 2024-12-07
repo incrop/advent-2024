@@ -61,7 +61,40 @@ func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		return m, tea.Quit
 	case tea.KeyMsg:
 		switch msg.String() {
-		case "ctrl+c", "esc":
+		case "up":
+			if m.state == CalendarState {
+				m.selectedDay--
+				if m.selectedDay < 0 {
+					m.selectedDay = len(m.presets.ascii) - 1
+				}
+			}
+		case "down":
+			if m.state == CalendarState {
+				m.selectedDay++
+				if m.selectedDay >= len(m.presets.ascii) {
+					m.selectedDay = 0
+				}
+			}
+		case "enter":
+			if m.state == CalendarState {
+				m.state = DayState
+				m.answer = nil
+			}
+		case "left":
+			if m.state == DayState {
+				m.selectedPart[m.selectedDay] = 0
+			}
+		case "right":
+			if m.state == DayState {
+				m.selectedPart[m.selectedDay] = 1
+			}
+		case "esc", "q":
+			if m.state == CalendarState {
+				m.state = ExitState
+				return m, exit
+			}
+			m.state = CalendarState
+		case "ctrl+c":
 			m.state = ExitState
 			return m, exit
 		}
@@ -78,8 +111,9 @@ var controlStyle lipgloss.Style = lipgloss.NewStyle().
 	Foreground(lipgloss.Color("#009900")).
 	Padding(1)
 var textStyle lipgloss.Style = lipgloss.NewStyle().
-	Foreground(lipgloss.Color("#cccccc")).
-	Padding(1)
+	Foreground(lipgloss.Color("#cccccc"))
+var calendarSelectedStyle lipgloss.Style = textStyle.
+	Background(lipgloss.Color("#24243b"))
 var dataStyle lipgloss.Style = lipgloss.NewStyle().
 	Foreground(lipgloss.Color("#cccccc")).
 	Background(lipgloss.Color("#10101a"))
@@ -108,7 +142,7 @@ func (m model) View() string {
 
 func (m model) headerView() string {
 	controls := []string{"title placeholder"}
-	if m.selectedDay == 0 {
+	if m.state == CalendarState {
 		controls = append(controls, controlStyle.Render("[Esc: exit]"))
 	} else {
 		for _, preset := range m.presets.days[m.selectedDay] {
@@ -122,7 +156,11 @@ func (m model) headerView() string {
 		controls = append(controls, controlStyle.Render("[Esc: back]"))
 	}
 
-	title := highlightStyle.Render("Advent of Code 2024")
+	titleText := "Advent of Code 2024"
+	if m.state != CalendarState {
+		titleText = fmt.Sprintf("%s: Day %d", titleText, m.selectedDay+1)
+	}
+	title := highlightStyle.Render(titleText)
 
 	return m.joinWithGap(
 		[]string{title},
@@ -131,6 +169,32 @@ func (m model) headerView() string {
 }
 
 func (m model) bodyView() string {
+	if m.state == CalendarState {
+		return m.calendarSelectView()
+	} else {
+		return m.inputAndLogView()
+	}
+}
+
+func (m model) calendarSelectView() string {
+	var calendarLines []string
+	for day, asciiLine := range m.presets.ascii {
+		asciiLineWithDay := fmt.Sprintf("%s  %2d", asciiLine, day+1)
+		if m.selectedDay == day {
+			calendarLines = append(calendarLines, calendarSelectedStyle.Render(asciiLineWithDay))
+		} else {
+			calendarLines = append(calendarLines, textStyle.Render(asciiLineWithDay))
+		}
+	}
+	gapHeight := m.size.Height - len(m.presets.ascii) - 6
+	calendarLines = append(calendarLines, textStyle.Height(gapHeight).Render(""))
+	return lipgloss.JoinVertical(
+		lipgloss.Left,
+		calendarLines...,
+	)
+}
+
+func (m model) inputAndLogView() string {
 	return dataStyle.
 		Height(m.size.Height - 6).
 		MarginLeft(1).
@@ -138,10 +202,13 @@ func (m model) bodyView() string {
 }
 
 func (m model) footerView() string {
-	if m.selectedDay == 0 {
-		return ""
+	if m.state == CalendarState {
+		return controlStyle.
+			Width(m.size.Width - 1).
+			Align(lipgloss.Right).
+			Render("[Enter: select]")
 	}
-	answerLabel := textStyle.Render("Answer:")
+	answerLabel := textStyle.Padding(1).Render("Answer:")
 	answer := dataStyle.Render(m.answerText())
 	var controls []string
 	for part, partText := range []string{"[←: Part 1]", "[→: Part 2]"} {
@@ -177,7 +244,7 @@ func (m model) joinWithGap(leftWidgets []string, rightWidgets []string) string {
 	for _, widget := range rightWidgets {
 		widgetsWidth += lipgloss.Width(widget)
 	}
-	gapWidth := m.size.Width - widgetsWidth
+	gapWidth := m.size.Width - widgetsWidth - 1
 	var widgets []string
 	widgets = append(widgets, leftWidgets...)
 	widgets = append(widgets, lipgloss.NewStyle().Width(gapWidth).Render(""))
@@ -186,7 +253,7 @@ func (m model) joinWithGap(leftWidgets []string, rightWidgets []string) string {
 }
 
 func main() {
-	p := tea.NewProgram(model{selectedDay: 1, state: CalculateState})
+	p := tea.NewProgram(model{})
 	if _, err := p.Run(); err != nil {
 		fmt.Printf("Alas, there's been an error: %v", err)
 		os.Exit(1)
