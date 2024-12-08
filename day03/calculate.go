@@ -1,6 +1,7 @@
 package day03
 
 import (
+	"incrop/advent-2024/out"
 	"log"
 	"regexp"
 	"strconv"
@@ -9,27 +10,38 @@ import (
 
 type Calculate struct{}
 
-func (d Calculate) Part1(input []string) int64 {
+func (d Calculate) Part1(input []string, outputCh chan<- []string) int64 {
 	mulSum := int64(0)
+	l := out.NewLog(outputCh)
 	for _, e := range parse(input) {
 		switch e := e.(type) {
 		case mul:
+			l.Printf("mul(%d,%d) = %d", e.x, e.y, e.x*e.y)
 			mulSum += int64(e.x * e.y)
 		}
 	}
 	return mulSum
 }
 
-func (d Calculate) Part2(input []string) int64 {
+func (d Calculate) Part2(input []string, outputCh chan<- []string) int64 {
 	doing := true
 	mulSum := int64(0)
+	l := out.NewLog(outputCh)
 	for _, e := range parse(input) {
 		switch e := e.(type) {
 		case do:
 			doing = bool(e)
+			if doing {
+				l.Printf("do()")
+			} else {
+				l.Printf("don't()")
+			}
 		case mul:
 			if doing {
+				l.Printf("mul(%d,%d) = %d", e.x, e.y, e.x*e.y)
 				mulSum += int64(e.x * e.y)
+			} else {
+				l.Printf("mul(%d,%d) ignored", e.x, e.y)
 			}
 		}
 	}
@@ -69,6 +81,6 @@ func parse(input []string) (expr []expr) {
 	return
 }
 
-func (d Calculate) Answers() (int64, int64) {
-	return 188741603, 67269798
+func (d Calculate) CorrectAnswers() [2]int64 {
+	return [2]int64{188741603, 67269798}
 }

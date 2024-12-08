@@ -1,6 +1,7 @@
 package day02
 
 import (
+	"incrop/advent-2024/out"
 	"log"
 	"strconv"
 	"strings"
@@ -10,21 +11,28 @@ type Calculate struct{}
 
 type report []int
 
-func (d Calculate) Part1(input []string) int64 {
+func (d Calculate) Part1(input []string, outputCh chan<- []string) int64 {
 	safeReports := 0
+	l := out.NewLog(outputCh)
 	for _, r := range parse(input) {
-		if r.unsafeIdx() == 0 {
+		unsafeIdx := r.unsafeIdx()
+		if unsafeIdx == 0 {
 			safeReports++
+			l.Printf("safe")
+		} else {
+			l.Printf("unsafe at idx %d", unsafeIdx)
 		}
 	}
 	return int64(safeReports)
 }
 
-func (d Calculate) Part2(input []string) int64 {
+func (d Calculate) Part2(input []string, outputCh chan<- []string) int64 {
 	safeReports := 0
+	l := out.NewLog(outputCh)
 	for _, r := range parse(input) {
 		unsafeIdx := r.unsafeIdx()
 		if unsafeIdx == 0 {
+			l.Printf("safe")
 			safeReports++
 			continue
 		}
@@ -32,6 +40,7 @@ func (d Calculate) Part2(input []string) int64 {
 		dampenedTry1 = append(dampenedTry1, r[0:unsafeIdx-1]...)
 		dampenedTry1 = append(dampenedTry1, r[unsafeIdx:]...)
 		if dampenedTry1.unsafeIdx() == 0 {
+			l.Printf("safe after removing %d at idx %d", r[unsafeIdx-1], unsafeIdx-1)
 			safeReports++
 			continue
 		}
@@ -39,13 +48,16 @@ func (d Calculate) Part2(input []string) int64 {
 		dampenedTry2 = append(dampenedTry2, r[0:unsafeIdx]...)
 		dampenedTry2 = append(dampenedTry2, r[unsafeIdx+1:]...)
 		if dampenedTry2.unsafeIdx() == 0 {
+			l.Printf("safe after removing %d at idx %d", r[unsafeIdx], unsafeIdx)
 			safeReports++
 			continue
 		}
 		if unsafeIdx != 2 {
+			l.Printf("unsafe at idx %d", unsafeIdx)
 			continue
 		}
 		if r[1:].unsafeIdx() == 0 {
+			l.Printf("safe after removing %d at idx %d", r[0], 0)
 			safeReports++
 			continue
 		}
@@ -92,6 +104,6 @@ func parse(input []string) (reports []report) {
 	return
 }
 
-func (d Calculate) Answers() (int64, int64) {
-	return 236, 308
+func (d Calculate) CorrectAnswers() [2]int64 {
+	return [2]int64{236, 308}
 }

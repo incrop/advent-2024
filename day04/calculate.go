@@ -2,24 +2,30 @@ package day04
 
 type Calculate struct{}
 
-func (d Calculate) Part1(input []string) int64 {
+func (d Calculate) Part1(input []string, outputCh chan<- []string) int64 {
 	xmasCount := int64(0)
+	f := fieldFrom(input)
 	for i, line := range input {
 		for j := range line {
-			xmasCount += int64(xmasCountStaringAt(input, i, j))
+			dirs := xmasDirections(input, i, j)
+			xmasCount += int64(len(dirs))
+			for _, dir := range dirs {
+				f.copy(4, i, j, dir[0], dir[1])
+				outputCh <- f.output()
+			}
 		}
 	}
 	return xmasCount
 }
 
-func xmasCountStaringAt(input []string, i, j int) (count int) {
+func xmasDirections(input []string, i, j int) (dirs [][2]int) {
 	for di := -1; di <= 1; di++ {
 		for dj := -1; dj <= 1; dj++ {
 			if di == 0 && dj == 0 {
 				continue
 			}
 			if readsXmsInThisDirection(input, i, j, di, dj) {
-				count++
+				dirs = append(dirs, [2]int{di, dj})
 			}
 		}
 	}
@@ -44,15 +50,20 @@ func readsXmsInThisDirection(input []string, i, j, di, dj int) bool {
 	return true
 }
 
-func (d Calculate) Part2(input []string) int64 {
+func (d Calculate) Part2(input []string, outputCh chan<- []string) int64 {
 	xmasCount := int64(0)
+	f := fieldFrom(input)
 	for i, line := range input {
 		for j := range line {
 			if hasMasInXShapeAt(input, i, j) {
 				xmasCount++
+				f.copy(3, i-1, j-1, 1, 1)
+				f.copy(3, i-1, j+1, 1, -1)
+				outputCh <- f.output()
 			}
 		}
 	}
+	outputCh <- f.output()
 	return xmasCount
 }
 
@@ -62,7 +73,7 @@ func hasMasInXShapeAt(input []string, i, j int) bool {
 	}
 	for di, dj := -1, -1; di <= 1; di += 2 {
 		msCount := [2]int{}
-		for _, coord := range [2][2]int{{i+di, j+dj}, {i-di, j-dj}} {
+		for _, coord := range [2][2]int{{i + di, j + dj}, {i - di, j - dj}} {
 			if coord[0] < 0 || coord[0] >= len(input) {
 				return false
 			}
@@ -70,7 +81,7 @@ func hasMasInXShapeAt(input []string, i, j int) bool {
 			if coord[1] < 0 || coord[1] >= len(line) {
 				return false
 			}
-			switch line[coord[1]]{
+			switch line[coord[1]] {
 			case 'M':
 				msCount[0]++
 			case 'S':
@@ -86,6 +97,38 @@ func hasMasInXShapeAt(input []string, i, j int) bool {
 	return true
 }
 
-func (d Calculate) Answers() (int64, int64) {
-	return 2569, 1998
+type field struct {
+	input []string
+	cells [][]rune
+}
+
+func fieldFrom(input []string) (f field) {
+	f.input = input
+	for _, line := range input {
+		row := make([]rune, len(line))
+		for j := range row {
+			row[j] = ' '
+		}
+		f.cells = append(f.cells, row)
+	}
+	return
+}
+
+func (f field) copy(n, i, j, di, dj int) {
+	for range n {
+		f.cells[i][j] = rune(f.input[i][j])
+		i += di
+		j += dj
+	}
+}
+
+func (f field) output() (o []string) {
+	for _, row := range f.cells {
+		o = append(o, string(row))
+	}
+	return
+}
+
+func (d Calculate) CorrectAnswers() [2]int64 {
+	return [2]int64{2569, 1998}
 }

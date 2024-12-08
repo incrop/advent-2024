@@ -52,14 +52,17 @@ func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 			m.dayStates[i].presets = presets
 		}
 		if m.autosolve {
-			return m, m.scheduleAutosolve()
+			cmd := m.scheduleAutosolve()
+			return m, cmd
 		}
 	case tea.BackgroundColorMsg:
 		m.originalBgColor = &msg.Color
+	case OutputMsg:
+		cmd := m.dayStates[msg.day].handleOutputMsg(msg)
+		return m, cmd
 	case AnswerMsg:
-		newAnswer := int64(msg.answer)
-		m.dayStates[msg.day].answers[msg.part] = &newAnswer
-		m.dayStates[msg.day].isCalculating = false
+		cmd := m.dayStates[msg.day].handleAnswerMsg(msg)
+		return m, cmd
 	case ExitMsg:
 		return m, tea.Quit
 	case tea.KeyMsg:
@@ -180,12 +183,11 @@ func (m model) countDayStars() (stars [26]int) {
 		if d.calculate == nil {
 			continue
 		}
-		correctAnswer0, correctAnswer1 := d.calculate.Answers()
-		if d.answers[0] != nil && *d.answers[0] == correctAnswer0 {
-			stars[day]++
-		}
-		if d.answers[1] != nil && *d.answers[1] == correctAnswer1 {
-			stars[day]++
+		for part, correctAnswer := range d.calculate.CorrectAnswers() {
+			answer := d.out[part].answer
+			if answer != nil && *answer == correctAnswer {
+				stars[day]++
+			}
 		}
 	}
 	return

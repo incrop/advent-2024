@@ -11,9 +11,9 @@ import (
 )
 
 type Calculate interface {
-	Part1(input []string) int64
-	Part2(input []string) int64
-	Answers() (int64, int64)
+	Part1(input []string, outputCh chan<- []string) int64
+	Part2(input []string, outputCh chan<- []string) int64
+	CorrectAnswers() [2]int64
 }
 
 type AnswerMsg struct {
@@ -22,20 +22,56 @@ type AnswerMsg struct {
 	answer int64
 }
 
-func (d dayState) calculateCmd(preset int, part int) tea.Cmd {
+func (d *dayState) calculateCmd(preset int, part int) tea.Cmd {
+	out := &d.out[part]
+	if out.isCalculating() {
+		return nil
+	}
+	input := d.presets.input(preset)
+	outputCh := make(chan []string)
+	out.ch = outputCh
+	out.answer = nil
+	out.lines = nil
+	return tea.Batch(
+		d.runCalculateCmd(part, input, outputCh),
+		d.recvOutputCmd(part, outputCh),
+	)
+}
+
+func (d dayState) runCalculateCmd(part int, input []string, outputCh chan<- []string) tea.Cmd {
 	return func() tea.Msg {
+		defer close(outputCh)
 		answerMsg := AnswerMsg{
 			day:    d.day,
 			part:   part,
 			answer: 0,
 		}
-		input := d.presets.input(preset)
 		if part == 0 {
-			answerMsg.answer = d.calculate.Part1(input)
+			answerMsg.answer = d.calculate.Part1(input, outputCh)
 		} else {
-			answerMsg.answer = d.calculate.Part2(input)
+			answerMsg.answer = d.calculate.Part2(input, outputCh)
 		}
 		return answerMsg
+	}
+}
+
+type OutputMsg struct {
+	day   int
+	part  int
+	lines []string
+}
+
+func (d dayState) recvOutputCmd(part int, outputChan <-chan []string) tea.Cmd {
+	return func() tea.Msg {
+		lines, ok := <-outputChan
+		if !ok {
+			return nil
+		}
+		return OutputMsg{
+			day:   d.day,
+			part:  part,
+			lines: lines,
+		}
 	}
 }
 
@@ -50,9 +86,10 @@ func collectCalculations() [26]Calculate {
 	}
 }
 
-func (m model) scheduleAutosolve() tea.Cmd {
+func (m *model) scheduleAutosolve() tea.Cmd {
 	var commands []tea.Cmd
-	for _, d := range m.dayStates {
+	for day := range m.dayStates {
+		d := &m.dayStates[day]
 		if d.calculate == nil {
 			continue
 		}

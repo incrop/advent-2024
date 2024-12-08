@@ -1,6 +1,7 @@
 package day05
 
 import (
+	"incrop/advent-2024/out"
 	"log"
 	"strconv"
 	"strings"
@@ -50,33 +51,41 @@ type rules struct {
 	updates   []update
 }
 
-func (d Calculate) Part1(input []string) int64 {
+func (d Calculate) Part1(input []string, outputCh chan<- []string) int64 {
 	rules := parse(input)
 	middleNumSum := int64(0)
 	bannedOrderings := make(map[ordering]bool)
 	for _, o := range rules.orderings {
 		bannedOrderings[ordering{o.after, o.before}] = true
 	}
+	l := out.NewLog(outputCh)
 	for _, update := range rules.updates {
 		if update.isValid(bannedOrderings) {
 			middleNum := update[(len(update)-1)/2]
 			middleNumSum += int64(middleNum)
+			l.Printf("valid, middle: %d", middleNum)
+		} else {
+			l.Printf("invalid")
 		}
 	}
 	return middleNumSum
 }
 
-func (d Calculate) Part2(input []string) int64 {
+func (d Calculate) Part2(input []string, outputCh chan<- []string) int64 {
 	rules := parse(input)
 	middleNumSum := int64(0)
 	bannedOrderings := make(map[ordering]bool)
 	for _, o := range rules.orderings {
 		bannedOrderings[ordering{o.after, o.before}] = true
 	}
+	l := out.NewLog(outputCh)
 	for _, update := range rules.updates {
 		if update.fixInvalid(bannedOrderings) {
 			middleNum := update[(len(update)-1)/2]
 			middleNumSum += int64(middleNum)
+			l.Printf("invalid, middle after fix: %d", middleNum)
+		} else {
+			l.Printf("valid, skipping")
 		}
 	}
 	return middleNumSum
@@ -127,6 +136,6 @@ func parseUpdates(input []string) (updates []update) {
 	return
 }
 
-func (d Calculate) Answers() (int64, int64) {
-	return 5452, 4598
+func (d Calculate) CorrectAnswers() [2]int64 {
+	return [2]int64{5452, 4598}
 }
