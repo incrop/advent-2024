@@ -5,6 +5,7 @@ import (
 	"incrop/advent-2024/day02"
 	"incrop/advent-2024/day03"
 	"incrop/advent-2024/day04"
+	"incrop/advent-2024/day05"
 
 	tea "github.com/charmbracelet/bubbletea/v2"
 )
@@ -44,6 +45,7 @@ func collectCalculations() [26]Calculate {
 		day02.Calculate{},
 		day03.Calculate{},
 		day04.Calculate{},
+		day05.Calculate{},
 	}
 }
 

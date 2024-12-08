@@ -21,8 +21,8 @@ func ascii(selectedDay int, dayStars [26]int) []string {
 		`.---': ~ '(~), ~|        | >@>O< o-_/.()__------|`,
 		` 9cc96666 ggg 6           GBGOGRG bbbbb       gg `,
 		`|#..@'. ~ " ' ~ |        |>O>o<@< \____       .'|`,
-		`                                                 `,
-		`|               |        |          ..          |`,
+		` 9ccc996666666 $                        bb ggg$  `,
+		`|_.~._#'.. ~ ~ *|        | _| |_    ..\_\_ ..'* |`,
 		`                                                 `,
 		`|               |        |        .'  '.        |`,
 		`                                                 `,
@@ -141,7 +141,7 @@ func applyOverlays(styleOverlays []styleOverlay, asciiRow string, day int, stars
 		if selected {
 			style = style.Background(lipgloss.Color("#24243b"))
 		}
-		sb.WriteString(style.Render(strings.Repeat(" ", 3-stars) + strings.Repeat("*", stars)))
+		sb.WriteString(style.Render(" " + strings.Repeat("*", stars) + strings.Repeat(" ", 2-stars)))
 	}
 	return sb.String()
 }

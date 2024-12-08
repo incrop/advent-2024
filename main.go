@@ -63,6 +63,9 @@ func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	case tea.BackgroundColorMsg:
 		m.originalBgColor = &msg.Color
 	case AnswerMsg:
+		if m.state == CalculateState {
+			m.state = DayState
+		}
 		newAnswer := int64(msg.answer)
 		m.answers[msg.day][msg.part] = &newAnswer
 	case ExitMsg:
@@ -186,7 +189,7 @@ func (m model) View() string {
 }
 
 func (m model) headerView() string {
-	controls := []string{"title placeholder"}
+	var controls []string
 	if m.state == CalendarState {
 		controls = append(controls, controlStyle.Render("[Esc: exit]"))
 	} else {
