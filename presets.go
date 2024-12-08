@@ -19,8 +19,7 @@ type preset struct {
 type dayPresets []preset
 
 type loadedPresets struct {
-	ascii []string
-	days  [25]dayPresets
+	days [25]dayPresets
 }
 
 func (lp loadedPresets) input(day, num int) []string {
@@ -36,7 +35,6 @@ var presetFileRegexp = regexp.MustCompile(`^day(\d\d)-(\d)-([a-z]+).txt$`)
 
 func loadPresets() tea.Msg {
 	var lp loadedPresets
-	lp.ascii = loadLines("ascii.txt")
 	entries, err := os.ReadDir("./presets")
 	if err != nil {
 		log.Fatal(err)

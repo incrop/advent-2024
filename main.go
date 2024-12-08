@@ -27,10 +27,10 @@ type model struct {
 	presets         *loadedPresets
 	originalBgColor *color.Color
 	selectedDay     int
-	inputScroll     [25]int
-	selectedPreset  [25]int
-	selectedPart    [25]int
-	calculations    [25]Calculate
+	inputScroll     [26]int
+	selectedPreset  [26]int
+	selectedPart    [26]int
+	calculations    [26]Calculate
 	answer          *int64
 }
 
@@ -70,8 +70,11 @@ func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 			switch m.state {
 			case CalendarState:
 				m.selectedDay--
-				if m.selectedDay < 0 {
-					m.selectedDay = len(m.presets.ascii) - 1
+				if m.selectedDay <= 0 {
+					m.selectedDay = 1
+					for m.calculations[m.selectedDay+1] != nil {
+						m.selectedDay++
+					}
 				}
 			case DayState:
 				if m.inputScroll[m.selectedDay] > 0 {
@@ -82,8 +85,8 @@ func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 			switch m.state {
 			case CalendarState:
 				m.selectedDay++
-				if m.selectedDay >= len(m.presets.ascii) {
-					m.selectedDay = 0
+				if m.calculations[m.selectedDay] == nil {
+					m.selectedDay = 1
 				}
 			case DayState:
 				maxScroll := 0
@@ -153,8 +156,6 @@ var controlStyle lipgloss.Style = lipgloss.NewStyle().
 	Padding(1)
 var textStyle lipgloss.Style = lipgloss.NewStyle().
 	Foreground(lipgloss.Color("#cccccc"))
-var calendarSelectedStyle lipgloss.Style = textStyle.
-	Background(lipgloss.Color("#24243b"))
 var dataStyle lipgloss.Style = lipgloss.NewStyle().
 	Foreground(lipgloss.Color("#cccccc")).
 	Background(lipgloss.Color("#10101a"))
@@ -199,7 +200,7 @@ func (m model) headerView() string {
 
 	titleText := "Advent of Code 2024"
 	if m.state != CalendarState {
-		titleText = fmt.Sprintf("%s: Day %d", titleText, m.selectedDay+1)
+		titleText = fmt.Sprintf("%s: Day %d", titleText, m.selectedDay)
 	}
 	title := highlightStyle.Render(titleText)
 
@@ -218,16 +219,8 @@ func (m model) bodyView() string {
 }
 
 func (m model) calendarSelectView() string {
-	var calendarLines []string
-	for day, asciiLine := range m.presets.ascii {
-		asciiLineWithDay := fmt.Sprintf("%s  %2d", asciiLine, day+1)
-		if m.selectedDay == day {
-			calendarLines = append(calendarLines, calendarSelectedStyle.Render(asciiLineWithDay))
-		} else {
-			calendarLines = append(calendarLines, textStyle.Render(asciiLineWithDay))
-		}
-	}
-	gapHeight := m.size.Height - len(m.presets.ascii) - 6
+	calendarLines := ascii(m.selectedDay, []int{})
+	gapHeight := m.size.Height - len(calendarLines) - 5
 	calendarLines = append(calendarLines, textStyle.Height(gapHeight).Render(""))
 	return lipgloss.JoinVertical(
 		lipgloss.Left,
@@ -310,7 +303,7 @@ func main() {
 	} else {
 		*day = 1
 	}
-	p := tea.NewProgram(initModel(state, *day-1, *part-1, *preset))
+	p := tea.NewProgram(initModel(state, *day, *part-1, *preset))
 	if _, err := p.Run(); err != nil {
 		fmt.Printf("Alas, there's been an error: %v", err)
 		os.Exit(1)
@@ -320,7 +313,7 @@ func main() {
 func initModel(state State, selectedDay, part, preset int) (m model) {
 	m.state = state
 	m.selectedDay = selectedDay
-	for day := range m.selectedPreset {
+	for day := range m.selectedPreset[1:] {
 		m.selectedPreset[day] = 1
 	}
 	m.selectedPreset[selectedDay] = preset

@@ -25,8 +25,9 @@ func calculateCmd(input []string, c Calculate, part int) tea.Cmd {
 	}
 }
 
-func collectCalculations() [25]Calculate {
-	return [25]Calculate{
+func collectCalculations() [26]Calculate {
+	return [26]Calculate{
+		nil,
 		day01.Calculate{},
 		day02.Calculate{},
 		day03.Calculate{},
