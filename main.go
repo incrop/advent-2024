@@ -241,6 +241,7 @@ func (m model) inputAndLogView() string {
 	scrollBottom := min(scrollTop+m.size.Height-6, len(input))
 	window := input[scrollTop:scrollBottom]
 	return dataStyle.
+		MaxWidth(50).
 		Height(m.size.Height - 6).
 		MarginLeft(1).
 		Render(strings.Join(window, "\n"))
