@@ -220,7 +220,7 @@ func (m model) bodyView() string {
 
 func (m model) calendarSelectView() string {
 	calendarLines := ascii(m.selectedDay, m.countDayStars())
-	gapHeight := m.size.Height - len(calendarLines) - 5
+	gapHeight := m.size.Height - len(calendarLines) - 6
 	calendarLines = append(calendarLines, textStyle.Height(gapHeight).Render(""))
 	return lipgloss.JoinVertical(
 		lipgloss.Left,

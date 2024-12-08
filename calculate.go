@@ -4,6 +4,7 @@ import (
 	"incrop/advent-2024/day01"
 	"incrop/advent-2024/day02"
 	"incrop/advent-2024/day03"
+	"incrop/advent-2024/day04"
 
 	tea "github.com/charmbracelet/bubbletea/v2"
 )
@@ -15,16 +16,16 @@ type Calculate interface {
 }
 
 type AnswerMsg struct {
-	day int
-	part int
+	day    int
+	part   int
 	answer int64
 }
 
-func calculateCmd(c Calculate, day int, part int, input []string,) tea.Cmd {
+func calculateCmd(c Calculate, day int, part int, input []string) tea.Cmd {
 	return func() tea.Msg {
-		answerMsg := AnswerMsg {
-			day: day,
-			part: part,
+		answerMsg := AnswerMsg{
+			day:    day,
+			part:   part,
 			answer: 0,
 		}
 		if part == 0 {
@@ -42,5 +43,6 @@ func collectCalculations() [26]Calculate {
 		day01.Calculate{},
 		day02.Calculate{},
 		day03.Calculate{},
+		day04.Calculate{},
 	}
 }

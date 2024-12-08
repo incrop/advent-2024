@@ -17,10 +17,10 @@ func ascii(selectedDay int, dayStars [26]int) []string {
 		`       .--'~ ~ ~|        .-' *       \  /     '-.`,
 		`        6  g  6             GOG   bbbbbbbbbbb    `,
 		`    .--'~  ,* ~ |        |  >o<   \_\_\|_/__/   |`,
-		`       6 giiig 6           GRGBG Rbbb   bbbbbbbb `,
+		`     6 6 giiig 6           GRGBG Rbbb   bbbbbbbb `,
 		`.---': ~ '(~), ~|        | >@>O< o-_/.()__------|`,
-		`                                                 `,
-		`|               |        |                      |`,
+		` 9cc96666 ggg 6           GBGOGRG bbbbb       gg `,
+		`|#..@'. ~ " ' ~ |        |>O>o<@< \____       .'|`,
 		`                                                 `,
 		`|               |        |          ..          |`,
 		`                                                 `,
@@ -62,7 +62,9 @@ var beige lipgloss.Style = lipgloss.NewStyle().Foreground(lipgloss.Color("#e3b58
 var brown lipgloss.Style = lipgloss.NewStyle().Foreground(lipgloss.Color("#886655"))
 var lgreen lipgloss.Style = lipgloss.NewStyle().Foreground(lipgloss.Color("#00cc00"))
 var green lipgloss.Style = lipgloss.NewStyle().Foreground(lipgloss.Color("#009900"))
+var dgreen lipgloss.Style = lipgloss.NewStyle().Foreground(lipgloss.Color("#01461f"))
 var indigo lipgloss.Style = lipgloss.NewStyle().Foreground(lipgloss.Color("#5555bb"))
+var cyan lipgloss.Style = lipgloss.NewStyle().Foreground(lipgloss.Color("#5eabb4"))
 var orange lipgloss.Style = lipgloss.NewStyle().Bold(true).Foreground(lipgloss.Color("#ff9900"))
 var red lipgloss.Style = lipgloss.NewStyle().Bold(true).Foreground(lipgloss.Color("#ff0000"))
 var blue lipgloss.Style = lipgloss.NewStyle().Bold(true).Foreground(lipgloss.Color("#0066ff"))
@@ -86,8 +88,12 @@ func parseStyleOverlays(styleRow string) (styleOverlays []styleOverlay) {
 			nextStyle = &lgreen
 		case 'G':
 			nextStyle = &green
+		case '9':
+			nextStyle = &dgreen
 		case 'i':
 			nextStyle = &indigo
+		case 'c':
+			nextStyle = &cyan
 		case 'O':
 			nextStyle = &orange
 		case 'R':
