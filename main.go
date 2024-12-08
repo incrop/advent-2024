@@ -31,7 +31,7 @@ type model struct {
 	selectedPreset  [26]int
 	selectedPart    [26]int
 	calculations    [26]Calculate
-	answer          *int64
+	answers         [26][2]*int64
 }
 
 func (m model) Init() (tea.Model, tea.Cmd) {
@@ -60,8 +60,8 @@ func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		m.originalBgColor = &msg.Color
 	case AnswerMsg:
 		m.state = DayState
-		newAnswer := int64(msg)
-		m.answer = &newAnswer
+		newAnswer := int64(msg.answer)
+		m.answers[msg.day][msg.part] = &newAnswer
 	case ExitMsg:
 		return m, tea.Quit
 	case tea.KeyMsg:
@@ -102,14 +102,12 @@ func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 			switch m.state {
 			case CalendarState:
 				m.state = DayState
-				m.answer = nil
 			case DayState:
 				calculate := m.calculations[m.selectedDay]
 				if calculate != nil {
 					m.state = CalculateState
-					m.answer = nil
 					input := m.presets.input(m.selectedDay, m.selectedPreset[m.selectedDay])
-					return m, calculateCmd(input, calculate, m.selectedPart[m.selectedDay])
+					return m, calculateCmd(calculate, m.selectedDay, m.selectedPart[m.selectedDay], input)
 				}
 			}
 		case "left":
@@ -127,6 +125,8 @@ func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 					if preset.num == nextNum {
 						m.selectedPreset[m.selectedDay] = nextNum
 						m.inputScroll[m.selectedDay] = 0
+						part := m.selectedPart[m.selectedDay]
+						m.answers[m.selectedDay][part] = nil
 					}
 				}
 			}
@@ -219,13 +219,30 @@ func (m model) bodyView() string {
 }
 
 func (m model) calendarSelectView() string {
-	calendarLines := ascii(m.selectedDay, []int{})
+	calendarLines := ascii(m.selectedDay, m.countDayStars())
 	gapHeight := m.size.Height - len(calendarLines) - 5
 	calendarLines = append(calendarLines, textStyle.Height(gapHeight).Render(""))
 	return lipgloss.JoinVertical(
 		lipgloss.Left,
 		calendarLines...,
 	)
+}
+
+func (m model) countDayStars() (stars [26]int) {
+	for day, calc := range m.calculations {
+		if calc == nil {
+			continue
+		}
+		correctAnswer0, correctAnswer1 := calc.Answers()
+		answers := m.answers[day]
+		if answers[0] != nil && *answers[0] == correctAnswer0 {
+			stars[day]++
+		}
+		if answers[1] != nil && *answers[1] == correctAnswer1 {
+			stars[day]++
+		}
+	}
+	return
 }
 
 func (m model) inputAndLogView() string {
@@ -269,10 +286,12 @@ func (m model) footerView() string {
 }
 
 func (m model) answerText() string {
-	if m.state == DayState && m.answer != nil {
-		return strconv.FormatInt(*m.answer, 10)
+	part := m.selectedPart[m.selectedDay]
+	answer := m.answers[m.selectedDay][part]
+	if answer == nil {
+		return "-"
 	}
-	return "-"
+	return strconv.FormatInt(*answer, 10)
 }
 
 func (m model) joinWithGap(leftWidgets []string, rightWidgets []string) string {

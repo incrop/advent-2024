@@ -91,3 +91,7 @@ func parse(input []string) (reports []report) {
 	}
 	return
 }
+
+func (d Calculate) Answers() (int64, int64) {
+	return 236, 308
+}

@@ -68,3 +68,7 @@ func parse(input []string) (expr []expr) {
 	}
 	return
 }
+
+func (d Calculate) Answers() (int64, int64) {
+	return 188741603, 67269798
+}

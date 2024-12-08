@@ -19,7 +19,7 @@ type preset struct {
 type dayPresets []preset
 
 type loadedPresets struct {
-	days [25]dayPresets
+	days [26]dayPresets
 }
 
 func (lp loadedPresets) input(day, num int) []string {
@@ -53,7 +53,7 @@ func loadPresets() tea.Msg {
 			log.Fatal(err)
 		}
 		tag := match[3]
-		lp.days[day-1] = append(lp.days[day-1], preset{
+		lp.days[day] = append(lp.days[day], preset{
 			num,
 			tag,
 			loadLines(e.Name()),

@@ -7,9 +7,10 @@ import (
 	"github.com/charmbracelet/lipgloss"
 )
 
-func ascii(selectedDay int, dayStars []int) []string {
+func ascii(selectedDay int, dayStars [26]int) []string {
 	return applyStyles(
 		selectedDay,
+		dayStars,
 		`                                                 `,
 		`          .-----.          .------------------.  `,
 		`           66666             $       bbbb        `,
@@ -34,7 +35,7 @@ type styleOverlay struct {
 	style *lipgloss.Style
 }
 
-func applyStyles(selectedDay int, styledAscii ...string) (rendered []string) {
+func applyStyles(selectedDay int, dayStars [26]int, styledAscii ...string) (rendered []string) {
 	if len(styledAscii)%2 > 0 {
 		panic("Expected even number of rows")
 	}
@@ -49,7 +50,7 @@ func applyStyles(selectedDay int, styledAscii ...string) (rendered []string) {
 			styleOverlays,
 			asciiRow,
 			day,
-			0,
+			dayStars[day],
 			day == selectedDay,
 		))
 	}
@@ -134,7 +135,7 @@ func applyOverlays(styleOverlays []styleOverlay, asciiRow string, day int, stars
 		if selected {
 			style = style.Background(lipgloss.Color("#24243b"))
 		}
-		sb.WriteString(style.Render(" " + strings.Repeat("*", stars)))
+		sb.WriteString(style.Render(strings.Repeat(" ", 3-stars) + strings.Repeat("*", stars)))
 	}
 	return sb.String()
 }

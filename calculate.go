@@ -11,17 +11,28 @@ import (
 type Calculate interface {
 	Part1(input []string) int64
 	Part2(input []string) int64
+	Answers() (int64, int64)
 }
 
-type AnswerMsg int64
+type AnswerMsg struct {
+	day int
+	part int
+	answer int64
+}
 
-func calculateCmd(input []string, c Calculate, part int) tea.Cmd {
+func calculateCmd(c Calculate, day int, part int, input []string,) tea.Cmd {
 	return func() tea.Msg {
-		if part == 0 {
-			return AnswerMsg(c.Part1(input))
-		} else {
-			return AnswerMsg(c.Part2(input))
+		answerMsg := AnswerMsg {
+			day: day,
+			part: part,
+			answer: 0,
 		}
+		if part == 0 {
+			answerMsg.answer = c.Part1(input)
+		} else {
+			answerMsg.answer = c.Part2(input)
+		}
+		return answerMsg
 	}
 }
 

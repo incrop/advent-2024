@@ -55,3 +55,7 @@ func parse(input []string) ([]int, []int) {
 	}
 	return left, right
 }
+
+func (d Calculate) Answers() (int64, int64) {
+	return 765748, 27732508
+}
