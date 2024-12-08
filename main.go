@@ -1,6 +1,7 @@
 package main
 
 import (
+	"flag"
 	"fmt"
 	"image/color"
 	"os"
@@ -34,10 +35,6 @@ type model struct {
 }
 
 func (m model) Init() (tea.Model, tea.Cmd) {
-	for i := range m.selectedPreset {
-		m.selectedPreset[i] = 1
-	}
-	m.calculations = collectCalculations()
 	return m, tea.Batch(
 		loadPresets,
 		tea.Sequence(
@@ -98,7 +95,7 @@ func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 					m.inputScroll[m.selectedDay]++
 				}
 			}
-		case "enter":
+		case "enter", "space":
 			switch m.state {
 			case CalendarState:
 				m.state = DayState
@@ -126,6 +123,7 @@ func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 				for _, preset := range m.presets.days[m.selectedDay] {
 					if preset.num == nextNum {
 						m.selectedPreset[m.selectedDay] = nextNum
+						m.inputScroll[m.selectedDay] = 0
 					}
 				}
 			}
@@ -172,7 +170,7 @@ func (m model) View() string {
 			Height(m.size.Height).
 			Width(m.size.Width).
 			Background(*m.originalBgColor).
-			Render("wgdgqwkduyqgwdku")
+			Render("")
 	}
 
 	return lipgloss.JoinVertical(
@@ -240,7 +238,7 @@ func (m model) calendarSelectView() string {
 func (m model) inputAndLogView() string {
 	input := m.presets.input(m.selectedDay, m.selectedPreset[m.selectedDay])
 	scrollTop := m.inputScroll[m.selectedDay]
-	scrollBottom := min(scrollTop+m.size.Height-6, len(input)-1)
+	scrollBottom := min(scrollTop+m.size.Height-6, len(input))
 	window := input[scrollTop:scrollBottom]
 	return dataStyle.
 		Height(m.size.Height - 6).
@@ -300,9 +298,32 @@ func (m model) joinWithGap(leftWidgets []string, rightWidgets []string) string {
 }
 
 func main() {
-	p := tea.NewProgram(model{})
+	day := flag.Int("day", 0, "from 1 to 25")
+	part := flag.Int("part", 1, "1 or 2")
+	preset := flag.Int("preset", 1, "number of preset")
+	flag.Parse()
+
+	state := CalendarState
+	if *day > 0 {
+		state = DayState
+	} else {
+		*day = 1
+	}
+	p := tea.NewProgram(initModel(state, *day-1, *part-1, *preset))
 	if _, err := p.Run(); err != nil {
 		fmt.Printf("Alas, there's been an error: %v", err)
 		os.Exit(1)
 	}
+}
+
+func initModel(state State, selectedDay, part, preset int) (m model) {
+	m.state = state
+	m.selectedDay = selectedDay
+	for day := range m.selectedPreset {
+		m.selectedPreset[day] = 1
+	}
+	m.selectedPreset[selectedDay] = preset
+	m.selectedPart[selectedDay] = part
+	m.calculations = collectCalculations()
+	return
 }

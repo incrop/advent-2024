@@ -2,6 +2,7 @@ package main
 
 import (
 	"incrop/advent-2024/day01"
+	"incrop/advent-2024/day02"
 
 	tea "github.com/charmbracelet/bubbletea/v2"
 )
@@ -25,6 +26,7 @@ func calculateCmd(input []string, c Calculate, part int) tea.Cmd {
 
 func collectCalculations() [25]Calculate {
 	return [25]Calculate{
-		day01.Day01{},
+		day01.Calculate{},
+		day02.Calculate{},
 	}
 }

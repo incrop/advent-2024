@@ -7,9 +7,9 @@ import (
 	"strings"
 )
 
-type Day01 struct{}
+type Calculate struct{}
 
-func (d Day01) Part1(input []string) int64 {
+func (d Calculate) Part1(input []string) int64 {
 	left, right := parse(input)
 	slices.Sort(left)
 	slices.Sort(right)
@@ -25,7 +25,7 @@ func (d Day01) Part1(input []string) int64 {
 	return diffSum
 }
 
-func (d Day01) Part2(input []string) int64 {
+func (d Calculate) Part2(input []string) int64 {
 	left, right := parse(input)
 	rightFreq := make(map[int]int)
 	for _, numRight := range right {
