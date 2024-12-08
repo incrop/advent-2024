@@ -18,12 +18,8 @@ type preset struct {
 
 type dayPresets []preset
 
-type loadedPresets struct {
-	days [26]dayPresets
-}
-
-func (lp loadedPresets) input(day, num int) []string {
-	for _, preset := range lp.days[day] {
+func (dp dayPresets) input(num int) []string {
+	for _, preset := range dp {
 		if preset.num == num {
 			return preset.lines
 		}
@@ -31,10 +27,12 @@ func (lp loadedPresets) input(day, num int) []string {
 	return nil
 }
 
+type loadedPresets [26]dayPresets
+
 var presetFileRegexp = regexp.MustCompile(`^day(\d\d)-(\d)-([a-z]+).txt$`)
 
 func loadPresets() tea.Msg {
-	var lp loadedPresets
+	var presets loadedPresets
 	entries, err := os.ReadDir("./presets")
 	if err != nil {
 		log.Fatal(err)
@@ -53,13 +51,13 @@ func loadPresets() tea.Msg {
 			log.Fatal(err)
 		}
 		tag := match[3]
-		lp.days[day] = append(lp.days[day], preset{
+		presets[day] = append(presets[day], preset{
 			num,
 			tag,
 			loadLines(e.Name()),
 		})
 	}
-	return lp
+	return presets
 }
 
 func loadLines(fileName string) (lines []string) {

@@ -22,17 +22,18 @@ type AnswerMsg struct {
 	answer int64
 }
 
-func calculateCmd(c Calculate, day int, part int, input []string) tea.Cmd {
+func (d dayState) calculateCmd(preset int, part int) tea.Cmd {
 	return func() tea.Msg {
 		answerMsg := AnswerMsg{
-			day:    day,
+			day:    d.day,
 			part:   part,
 			answer: 0,
 		}
+		input := d.presets.input(preset)
 		if part == 0 {
-			answerMsg.answer = c.Part1(input)
+			answerMsg.answer = d.calculate.Part1(input)
 		} else {
-			answerMsg.answer = c.Part2(input)
+			answerMsg.answer = d.calculate.Part2(input)
 		}
 		return answerMsg
 	}
@@ -49,16 +50,16 @@ func collectCalculations() [26]Calculate {
 	}
 }
 
-func scheduleAutosolve(calculations [26]Calculate, presets loadedPresets) tea.Cmd {
+func (m model) scheduleAutosolve() tea.Cmd {
 	var commands []tea.Cmd
-	for day, c := range calculations {
-		if c == nil {
+	for _, d := range m.dayStates {
+		if d.calculate == nil {
 			continue
 		}
 		commands = append(
 			commands,
-			calculateCmd(c, day, 0, presets.input(day, 1)),
-			calculateCmd(c, day, 1, presets.input(day, 1)),
+			d.calculateCmd(1, 0),
+			d.calculateCmd(1, 1),
 		)
 	}
 	return tea.Batch(commands...)

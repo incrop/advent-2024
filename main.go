@@ -5,8 +5,6 @@ import (
 	"fmt"
 	"image/color"
 	"os"
-	"strconv"
-	"strings"
 
 	tea "github.com/charmbracelet/bubbletea/v2"
 	"github.com/charmbracelet/lipgloss/v2"
@@ -17,21 +15,15 @@ type State int
 const (
 	CalendarState State = iota
 	DayState
-	CalculateState
 	ExitState
 )
 
 type model struct {
-	state           State
 	size            *tea.WindowSizeMsg
-	presets         *loadedPresets
 	originalBgColor *color.Color
+	state           State
 	selectedDay     int
-	inputScroll     [26]int
-	selectedPreset  [26]int
-	selectedPart    [26]int
-	calculations    [26]Calculate
-	answers         [26][2]*int64
+	dayStates       [26]dayState
 	autosolve       bool
 }
 
@@ -56,86 +48,26 @@ func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	case tea.WindowSizeMsg:
 		m.size = &msg
 	case loadedPresets:
-		m.presets = &msg
+		for i, presets := range &msg {
+			m.dayStates[i].presets = presets
+		}
 		if m.autosolve {
-			return m, scheduleAutosolve(m.calculations, msg)
+			return m, m.scheduleAutosolve()
 		}
 	case tea.BackgroundColorMsg:
 		m.originalBgColor = &msg.Color
 	case AnswerMsg:
-		if m.state == CalculateState {
-			m.state = DayState
-		}
 		newAnswer := int64(msg.answer)
-		m.answers[msg.day][msg.part] = &newAnswer
+		m.dayStates[msg.day].answers[msg.part] = &newAnswer
+		m.dayStates[msg.day].isCalculating = false
 	case ExitMsg:
 		return m, tea.Quit
 	case tea.KeyMsg:
+
 		switch msg.String() {
-		case "up":
-			switch m.state {
-			case CalendarState:
-				m.selectedDay--
-				if m.selectedDay <= 0 {
-					m.selectedDay = 1
-					for m.calculations[m.selectedDay+1] != nil {
-						m.selectedDay++
-					}
-				}
-			case DayState:
-				if m.inputScroll[m.selectedDay] > 0 {
-					m.inputScroll[m.selectedDay]--
-				}
-			}
-		case "down":
-			switch m.state {
-			case CalendarState:
-				m.selectedDay++
-				if m.calculations[m.selectedDay] == nil {
-					m.selectedDay = 1
-				}
-			case DayState:
-				maxScroll := 0
-				if m.size != nil {
-					input := m.presets.input(m.selectedDay, m.selectedPreset[m.selectedDay])
-					maxScroll = len(input) - m.size.Height + 6
-				}
-				if m.inputScroll[m.selectedDay] < maxScroll {
-					m.inputScroll[m.selectedDay]++
-				}
-			}
-		case "enter", "space":
-			switch m.state {
-			case CalendarState:
-				m.state = DayState
-			case DayState:
-				calculate := m.calculations[m.selectedDay]
-				if calculate != nil {
-					m.state = CalculateState
-					input := m.presets.input(m.selectedDay, m.selectedPreset[m.selectedDay])
-					return m, calculateCmd(calculate, m.selectedDay, m.selectedPart[m.selectedDay], input)
-				}
-			}
-		case "left":
-			if m.state == DayState {
-				m.selectedPart[m.selectedDay] = 0
-			}
-		case "right":
-			if m.state == DayState {
-				m.selectedPart[m.selectedDay] = 1
-			}
-		case "1", "2", "3", "4", "5", "6", "7", "8", "9":
-			if m.state == DayState {
-				nextNum := int(msg.String()[0] - '0')
-				for _, preset := range m.presets.days[m.selectedDay] {
-					if preset.num == nextNum {
-						m.selectedPreset[m.selectedDay] = nextNum
-						m.inputScroll[m.selectedDay] = 0
-						part := m.selectedPart[m.selectedDay]
-						m.answers[m.selectedDay][part] = nil
-					}
-				}
-			}
+		case "ctrl+c":
+			m.state = ExitState
+			return m, exit
 		case "esc", "q":
 			switch m.state {
 			case CalendarState:
@@ -144,9 +76,27 @@ func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 			case DayState:
 				m.state = CalendarState
 			}
-		case "ctrl+c":
-			m.state = ExitState
-			return m, exit
+		}
+		if m.state == DayState {
+			dayCmd := m.dayStates[m.selectedDay].handleKeyMsg(msg)
+			return m, dayCmd
+		}
+		switch msg.String() {
+		case "up":
+			m.selectedDay--
+			if m.selectedDay <= 0 {
+				m.selectedDay = 1
+				for m.dayStates[m.selectedDay+1].calculate != nil {
+					m.selectedDay++
+				}
+			}
+		case "down":
+			m.selectedDay++
+			if m.dayStates[m.selectedDay].calculate == nil {
+				m.selectedDay = 1
+			}
+		case "enter", "space":
+			m.state = DayState
 		}
 	}
 
@@ -167,7 +117,7 @@ var dataStyle lipgloss.Style = lipgloss.NewStyle().
 	Background(lipgloss.Color("#10101a"))
 
 func (m model) View() string {
-	if m.size == nil || m.presets == nil {
+	if m.size == nil {
 		return ""
 	}
 
@@ -180,53 +130,44 @@ func (m model) View() string {
 			Render("")
 	}
 
+	if m.state == DayState {
+		return m.dayStates[m.selectedDay].view(*m.size)
+	}
+
+	header := m.headerView()
+	footer := m.footerView()
+	bodySize := *m.size
+	bodySize.Height -= lipgloss.Height(header) + lipgloss.Height(footer)
+	body := m.bodyView(bodySize)
 	return lipgloss.JoinVertical(
 		lipgloss.Left,
-		m.headerView(),
-		m.bodyView(),
-		m.footerView(),
+		header,
+		body,
+		footer,
 	)
 }
 
 func (m model) headerView() string {
-	var controls []string
-	if m.state == CalendarState {
-		controls = append(controls, controlStyle.Render("[Esc: exit]"))
-	} else {
-		for _, preset := range m.presets.days[m.selectedDay] {
-			controlText := fmt.Sprintf("[%d: %s]", preset.num, preset.tag)
-			if m.selectedPreset[m.selectedDay] == preset.num {
-				controls = append(controls, highlightStyle.Render(controlText))
-			} else {
-				controls = append(controls, controlStyle.Render(controlText))
-			}
-		}
-		controls = append(controls, controlStyle.Render("[Esc: back]"))
-	}
+	title := highlightStyle.Render("Advent of Code 2024")
+	exit := controlStyle.Render("[Esc: exit]")
 
-	titleText := "Advent of Code 2024"
-	if m.state != CalendarState {
-		titleText = fmt.Sprintf("%s: Day %d", titleText, m.selectedDay)
-	}
-	title := highlightStyle.Render(titleText)
-
-	return m.joinWithGap(
+	return joinHorizontalWithGap(
 		[]string{title},
-		controls,
+		[]string{exit},
+		m.size.Width,
 	)
 }
 
-func (m model) bodyView() string {
-	if m.state == CalendarState {
-		return m.calendarSelectView()
-	} else {
-		return m.inputAndLogView()
-	}
+func (m model) footerView() string {
+	return controlStyle.
+		Width(m.size.Width - 1).
+		Align(lipgloss.Right).
+		Render("[Enter: select]")
 }
 
-func (m model) calendarSelectView() string {
+func (m model) bodyView(size tea.WindowSizeMsg) string {
 	calendarLines := ascii(m.selectedDay, m.countDayStars())
-	gapHeight := m.size.Height - len(calendarLines) - 6
+	gapHeight := size.Height - len(calendarLines)
 	calendarLines = append(calendarLines, textStyle.Height(gapHeight).Render(""))
 	return lipgloss.JoinVertical(
 		lipgloss.Left,
@@ -235,72 +176,22 @@ func (m model) calendarSelectView() string {
 }
 
 func (m model) countDayStars() (stars [26]int) {
-	for day, calc := range m.calculations {
-		if calc == nil {
+	for day, d := range m.dayStates {
+		if d.calculate == nil {
 			continue
 		}
-		correctAnswer0, correctAnswer1 := calc.Answers()
-		answers := m.answers[day]
-		if answers[0] != nil && *answers[0] == correctAnswer0 {
+		correctAnswer0, correctAnswer1 := d.calculate.Answers()
+		if d.answers[0] != nil && *d.answers[0] == correctAnswer0 {
 			stars[day]++
 		}
-		if answers[1] != nil && *answers[1] == correctAnswer1 {
+		if d.answers[1] != nil && *d.answers[1] == correctAnswer1 {
 			stars[day]++
 		}
 	}
 	return
 }
 
-func (m model) inputAndLogView() string {
-	input := m.presets.input(m.selectedDay, m.selectedPreset[m.selectedDay])
-	scrollTop := m.inputScroll[m.selectedDay]
-	scrollBottom := min(scrollTop+m.size.Height-6, len(input))
-	window := input[scrollTop:scrollBottom]
-	return dataStyle.
-		MaxWidth(50).
-		Height(m.size.Height - 6).
-		MarginLeft(1).
-		Render(strings.Join(window, "\n"))
-}
-
-func (m model) footerView() string {
-	if m.state == CalendarState {
-		return controlStyle.
-			Width(m.size.Width - 1).
-			Align(lipgloss.Right).
-			Render("[Enter: select]")
-	}
-	answerLabel := textStyle.Padding(1).Render("Answer:")
-	answer := dataStyle.Render(m.answerText())
-	var controls []string
-	for part, partText := range []string{"[←: Part 1]", "[→: Part 2]"} {
-		if m.selectedPart[m.selectedDay] == part {
-			controls = append(controls, highlightStyle.Render(partText))
-		} else {
-			controls = append(controls, controlStyle.Render(partText))
-		}
-	}
-	if m.state == CalculateState {
-		controls = append(controls, highlightStyle.Render("[ calculating... ]"))
-	} else {
-		controls = append(controls, controlStyle.Render("[Enter: calculate]"))
-	}
-	return m.joinWithGap(
-		[]string{answerLabel, answer},
-		controls,
-	)
-}
-
-func (m model) answerText() string {
-	part := m.selectedPart[m.selectedDay]
-	answer := m.answers[m.selectedDay][part]
-	if answer == nil {
-		return "-"
-	}
-	return strconv.FormatInt(*answer, 10)
-}
-
-func (m model) joinWithGap(leftWidgets []string, rightWidgets []string) string {
+func joinHorizontalWithGap(leftWidgets []string, rightWidgets []string, maxWidth int) string {
 	widgetsWidth := 0
 	for _, widget := range leftWidgets {
 		widgetsWidth += lipgloss.Width(widget)
@@ -308,10 +199,12 @@ func (m model) joinWithGap(leftWidgets []string, rightWidgets []string) string {
 	for _, widget := range rightWidgets {
 		widgetsWidth += lipgloss.Width(widget)
 	}
-	gapWidth := m.size.Width - widgetsWidth - 1
+	gapWidth := maxWidth - widgetsWidth - 1
 	var widgets []string
 	widgets = append(widgets, leftWidgets...)
-	widgets = append(widgets, lipgloss.NewStyle().Width(gapWidth).Render(""))
+	if gapWidth > 0 {
+		widgets = append(widgets, lipgloss.NewStyle().Width(gapWidth).Render(""))
+	}
 	widgets = append(widgets, rightWidgets...)
 	return lipgloss.JoinHorizontal(lipgloss.Center, widgets...)
 }
@@ -339,12 +232,16 @@ func main() {
 func initModel(state State, selectedDay, part, preset int, autosolve bool) (m model) {
 	m.state = state
 	m.selectedDay = selectedDay
-	for day := range m.selectedPreset[1:] {
-		m.selectedPreset[day] = 1
+	calculations := collectCalculations()
+	for day := range m.dayStates {
+		d := &m.dayStates[day]
+		d.day = day
+		d.selectedPreset = 1
+		d.calculate = calculations[day]
 	}
-	m.selectedPreset[selectedDay] = preset
-	m.selectedPart[selectedDay] = part
-	m.calculations = collectCalculations()
+	selectedDayState := &m.dayStates[selectedDay]
+	selectedDayState.selectedPreset = preset
+	selectedDayState.selectedPart = part
 	m.autosolve = autosolve
 	return
 }
