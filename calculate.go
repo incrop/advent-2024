@@ -46,3 +46,18 @@ func collectCalculations() [26]Calculate {
 		day04.Calculate{},
 	}
 }
+
+func scheduleAutosolve(calculations [26]Calculate, presets loadedPresets) tea.Cmd {
+	var commands []tea.Cmd
+	for day, c := range calculations {
+		if c == nil {
+			continue
+		}
+		commands = append(
+			commands,
+			calculateCmd(c, day, 0, presets.input(day, 1)),
+			calculateCmd(c, day, 1, presets.input(day, 1)),
+		)
+	}
+	return tea.Batch(commands...)
+}

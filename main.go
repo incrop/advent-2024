@@ -32,6 +32,7 @@ type model struct {
 	selectedPart    [26]int
 	calculations    [26]Calculate
 	answers         [26][2]*int64
+	autosolve       bool
 }
 
 func (m model) Init() (tea.Model, tea.Cmd) {
@@ -56,10 +57,12 @@ func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		m.size = &msg
 	case loadedPresets:
 		m.presets = &msg
+		if m.autosolve {
+			return m, scheduleAutosolve(m.calculations, msg)
+		}
 	case tea.BackgroundColorMsg:
 		m.originalBgColor = &msg.Color
 	case AnswerMsg:
-		m.state = DayState
 		newAnswer := int64(msg.answer)
 		m.answers[msg.day][msg.part] = &newAnswer
 	case ExitMsg:
@@ -314,6 +317,7 @@ func main() {
 	day := flag.Int("day", 0, "from 1 to 25")
 	part := flag.Int("part", 1, "1 or 2")
 	preset := flag.Int("preset", 1, "number of preset")
+	autosolve := flag.Bool("autosolve", true, "run calculations at startup")
 	flag.Parse()
 
 	state := CalendarState
@@ -322,14 +326,14 @@ func main() {
 	} else {
 		*day = 1
 	}
-	p := tea.NewProgram(initModel(state, *day, *part-1, *preset))
+	p := tea.NewProgram(initModel(state, *day, *part-1, *preset, *autosolve))
 	if _, err := p.Run(); err != nil {
 		fmt.Printf("Alas, there's been an error: %v", err)
 		os.Exit(1)
 	}
 }
 
-func initModel(state State, selectedDay, part, preset int) (m model) {
+func initModel(state State, selectedDay, part, preset int, autosolve bool) (m model) {
 	m.state = state
 	m.selectedDay = selectedDay
 	for day := range m.selectedPreset[1:] {
@@ -338,5 +342,6 @@ func initModel(state State, selectedDay, part, preset int) (m model) {
 	m.selectedPreset[selectedDay] = preset
 	m.selectedPart[selectedDay] = part
 	m.calculations = collectCalculations()
+	m.autosolve = autosolve
 	return
 }
