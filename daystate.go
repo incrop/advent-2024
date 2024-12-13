@@ -140,8 +140,8 @@ func (d dayState) bodyView(size tea.WindowSizeMsg) string {
 	scrollBottom := min(d.inputScroll+size.Height, len(input))
 	window := input[d.inputScroll:scrollBottom]
 	style := dataStyle.
-		Width((size.Width - 1) / 2).
-		Height(size.Height).
+		Width((size.Width - 3) / 2).
+		Height(size.Height - 1).
 		MarginLeft(1)
 
 	outLines := d.out[d.selectedPart].lines
