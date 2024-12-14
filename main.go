@@ -244,6 +244,8 @@ func initModel(state State, selectedDay, part, preset int, autosolve bool) (m mo
 	selectedDayState := &m.dayStates[selectedDay]
 	selectedDayState.selectedPreset = preset
 	selectedDayState.selectedPart = part
-	m.autosolve = autosolve
+	if state == CalendarState {
+		m.autosolve = autosolve
+	}
 	return
 }
