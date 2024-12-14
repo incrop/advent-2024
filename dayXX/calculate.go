@@ -1,4 +1,4 @@
-package day09
+package dayXX
 
 type Calculate struct{}
 

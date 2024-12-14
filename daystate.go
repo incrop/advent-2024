@@ -165,7 +165,8 @@ func cropWindow(lines []string, scrollX, scrollY, width, height int) (window []s
 	if maxY > len(lines) {
 		maxY = len(lines)
 	}
-	for _, line := range lines[minY:maxY] {
+	for _, lineStr := range lines[minY:maxY] {
+		line := []rune(lineStr)
 		minX := scrollX
 		if minX > len(line) {
 			minX = len(line)
@@ -174,7 +175,7 @@ func cropWindow(lines []string, scrollX, scrollY, width, height int) (window []s
 		if maxX > len(line) {
 			maxX = len(line)
 		}
-		cropLine := []rune(line[minX:maxX])
+		cropLine := line[minX:maxX]
 		if minX > 0 {
 			if len(cropLine) > 0 {
 				cropLine[0] = '←'
