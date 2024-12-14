@@ -10,13 +10,13 @@ import (
 )
 
 type dayState struct {
-	day            int
-	presets        dayPresets
-	selectedPreset int
-	selectedPart   int
-	inputScroll    int
-	calculate      Calculate
-	out            [2]output
+	day              int
+	presets          dayPresets
+	selectedPreset   int
+	selectedPart     int
+	scrollX, scrollY int
+	calculate        Calculate
+	out              [2]output
 }
 
 type output struct {
@@ -32,17 +32,21 @@ func (out output) isCalculating() bool {
 func (d *dayState) handleKeyMsg(msg tea.KeyMsg) tea.Cmd {
 	switch msg.String() {
 	case "up":
-		if d.inputScroll > 0 {
-			d.inputScroll--
+		if d.scrollY > 0 {
+			d.scrollY--
 		}
 	case "down":
-		d.inputScroll++
+		d.scrollY++
+	case "left":
+		if d.scrollX > 0 {
+			d.scrollX--
+		}
+	case "right":
+		d.scrollX++
 	case "enter", "space":
 		return d.calculateCmd(d.selectedPreset, d.selectedPart)
-	case "left":
-		d.selectedPart = 0
-	case "right":
-		d.selectedPart = 1
+	case "tab":
+		d.selectedPart = 1 - d.selectedPart
 	case "1", "2", "3", "4", "5", "6", "7", "8", "9":
 		presetNum := int(msg.String()[0] - '0')
 		if !d.out[d.selectedPart].isCalculating() && d.presets.input(presetNum) != nil {
@@ -107,11 +111,11 @@ func (d dayState) footerView(maxWidth int) string {
 	answer := dataStyle.Render(d.answerText())
 
 	var controls []string
-	for part, partText := range []string{"[←: Part 1]", "[→: Part 2]"} {
+	for part, partText := range []string{"[%sPart 1]", "[%sPart 2]"} {
 		if d.selectedPart == part {
-			controls = append(controls, highlightStyle.Render(partText))
+			controls = append(controls, highlightStyle.Render(fmt.Sprintf(partText, "")))
 		} else {
-			controls = append(controls, controlStyle.Render(partText))
+			controls = append(controls, controlStyle.Render(fmt.Sprintf(partText, "Tab: ")))
 		}
 	}
 	if d.out[d.selectedPart].isCalculating() {
@@ -136,21 +140,62 @@ func (d dayState) answerText() string {
 }
 
 func (d dayState) bodyView(size tea.WindowSizeMsg) string {
-	input := d.presets.input(d.selectedPreset)
-	scrollBottom := min(d.inputScroll+size.Height, len(input))
-	window := input[d.inputScroll:scrollBottom]
-	style := dataStyle.
-		Width((size.Width - 3) / 2).
-		Height(size.Height - 1).
-		MarginLeft(1)
+	width := (size.Width - 3) / 2
+	height := size.Height
 
-	outLines := d.out[d.selectedPart].lines
-	if len(outLines) > size.Height {
-		outLines = outLines[:size.Height]
-	}
+	input := d.presets.input(d.selectedPreset)
+	output := d.out[d.selectedPart].lines
+	inputWindow := cropWindow(input, d.scrollX, d.scrollY, width, height)
+	outputWindow := cropWindow(output, d.scrollX, d.scrollY, width, height)
+
+	style := dataStyle.Width(width).Height(height).MarginLeft(1)
 	return lipgloss.JoinHorizontal(
 		lipgloss.Top,
-		style.Render(strings.Join(window, "\n")),
-		style.Render(strings.Join(outLines, "\n")),
+		style.Render(strings.Join(inputWindow, "\n")),
+		style.Render(strings.Join(outputWindow, "\n")),
 	)
+}
+
+func cropWindow(lines []string, scrollX, scrollY, width, height int) (window []string) {
+	minY := scrollY
+	if minY > len(lines) {
+		minY = len(lines)
+	}
+	maxY := minY + height
+	if maxY > len(lines) {
+		maxY = len(lines)
+	}
+	for _, line := range lines[minY:maxY] {
+		minX := scrollX
+		if minX > len(line) {
+			minX = len(line)
+		}
+		maxX := minX + width
+		if maxX > len(line) {
+			maxX = len(line)
+		}
+		cropLine := []rune(line[minX:maxX])
+		if minX > 0 {
+			if len(cropLine) > 0 {
+				cropLine[0] = '←'
+			} else {
+				cropLine = append(cropLine, '←')
+			}
+		}
+		if maxX < len(line) && len(cropLine) > 0 {
+			cropLine[len(cropLine)-1] = '→'
+		}
+		window = append(window, string(cropLine))
+	}
+	if minY > 0 {
+		if len(window) > 0 {
+			window[0] = " ↑↑↑"
+		} else {
+			window = append(window, "↑↑↑")
+		}
+	}
+	if maxY < len(lines) && len(window) > 0 {
+		window[len(window)-1] = " ↓↓↓"
+	}
+	return
 }
