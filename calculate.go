@@ -31,12 +31,12 @@ type AnswerMsg struct {
 	answer int64
 }
 
-func (d *dayState) calculateCmd(preset int, part int) tea.Cmd {
+func (d *dayState) calculateCmd(inputNum int, part int) tea.Cmd {
 	out := &d.out[part]
 	if out.isCalculating() {
 		return nil
 	}
-	input := d.presets.input(preset)
+	input := d.inputs.lines(inputNum)
 	outputCh := make(chan []string)
 	out.ch = outputCh
 	out.answer = nil

@@ -10,35 +10,35 @@ import (
 	tea "github.com/charmbracelet/bubbletea/v2"
 )
 
-type preset struct {
+type dayInput struct {
 	num   int
 	tag   string
 	lines []string
 }
 
-type dayPresets []preset
+type dayInputs []dayInput
 
-func (dp dayPresets) input(num int) []string {
-	for _, preset := range dp {
-		if preset.num == num {
-			return preset.lines
+func (dis dayInputs) lines(num int) []string {
+	for _, input := range dis {
+		if input.num == num {
+			return input.lines
 		}
 	}
 	return nil
 }
 
-type loadedPresets [26]dayPresets
+type loadedInputs [26]dayInputs
 
-var presetFileRegexp = regexp.MustCompile(`^day(\d\d)-(\d)-([a-z]+).txt$`)
+var inputFileRegexp = regexp.MustCompile(`^day(\d\d)-(\d)-([a-z]+).txt$`)
 
-func loadPresets() tea.Msg {
-	var presets loadedPresets
-	entries, err := os.ReadDir("./presets")
+func loadInputs() tea.Msg {
+	var inputs loadedInputs
+	entries, err := os.ReadDir("./inputs")
 	if err != nil {
 		log.Fatal(err)
 	}
 	for _, e := range entries {
-		match := presetFileRegexp.FindStringSubmatch(e.Name())
+		match := inputFileRegexp.FindStringSubmatch(e.Name())
 		if match == nil {
 			continue
 		}
@@ -51,17 +51,17 @@ func loadPresets() tea.Msg {
 			log.Fatal(err)
 		}
 		tag := match[3]
-		presets[day] = append(presets[day], preset{
+		inputs[day] = append(inputs[day], dayInput{
 			num,
 			tag,
 			loadLines(e.Name()),
 		})
 	}
-	return presets
+	return inputs
 }
 
 func loadLines(fileName string) (lines []string) {
-	file, err := os.Open("./presets/" + fileName)
+	file, err := os.Open("./inputs/" + fileName)
 	if err != nil {
 		log.Fatal(err)
 	}

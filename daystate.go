@@ -11,8 +11,8 @@ import (
 
 type dayState struct {
 	day              int
-	presets          dayPresets
-	selectedPreset   int
+	inputs           dayInputs
+	selectedInput    int
 	selectedPart     int
 	scrollX, scrollY int
 	calculate        Calculate
@@ -44,13 +44,13 @@ func (d *dayState) handleKeyMsg(msg tea.KeyMsg) tea.Cmd {
 	case "right":
 		d.scrollX++
 	case "enter", "space":
-		return d.calculateCmd(d.selectedPreset, d.selectedPart)
+		return d.calculateCmd(d.selectedInput, d.selectedPart)
 	case "tab":
 		d.selectedPart = 1 - d.selectedPart
 	case "1", "2", "3", "4", "5", "6", "7", "8", "9":
-		presetNum := int(msg.String()[0] - '0')
-		if !d.out[d.selectedPart].isCalculating() && d.presets.input(presetNum) != nil {
-			d.selectedPreset = presetNum
+		inputNum := int(msg.String()[0] - '0')
+		if !d.out[d.selectedPart].isCalculating() && d.inputs.lines(inputNum) != nil {
+			d.selectedInput = inputNum
 		}
 	}
 	return nil
@@ -89,9 +89,9 @@ func (d dayState) headerView(maxWidth int) string {
 	title := highlightStyle.Render(titleText)
 
 	var controls []string
-	for _, preset := range d.presets {
-		controlText := fmt.Sprintf("[%d: %s]", preset.num, preset.tag)
-		if d.selectedPreset == preset.num {
+	for _, input := range d.inputs {
+		controlText := fmt.Sprintf("[%d: %s]", input.num, input.tag)
+		if d.selectedInput == input.num {
 			controls = append(controls, highlightStyle.Render(controlText))
 		} else {
 			controls = append(controls, controlStyle.Render(controlText))
@@ -143,7 +143,7 @@ func (d dayState) bodyView(size tea.WindowSizeMsg) string {
 	width := (size.Width - 3) / 2
 	height := size.Height
 
-	input := d.presets.input(d.selectedPreset)
+	input := d.inputs.lines(d.selectedInput)
 	output := d.out[d.selectedPart].lines
 	inputWindow := cropWindow(input, d.scrollX, d.scrollY, width, height)
 	outputWindow := cropWindow(output, d.scrollX, d.scrollY, width, height)

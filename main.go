@@ -29,7 +29,7 @@ type model struct {
 
 func (m model) Init() (tea.Model, tea.Cmd) {
 	return m, tea.Batch(
-		loadPresets,
+		loadInputs,
 		tea.Sequence(
 			tea.RequestBackgroundColor,
 			tea.SetBackgroundColor(lipgloss.Color("#0f0f23")),
@@ -47,9 +47,9 @@ func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	switch msg := msg.(type) {
 	case tea.WindowSizeMsg:
 		m.size = &msg
-	case loadedPresets:
-		for i, presets := range &msg {
-			m.dayStates[i].presets = presets
+	case loadedInputs:
+		for i, inputs := range &msg {
+			m.dayStates[i].inputs = inputs
 		}
 		if m.autosolve {
 			cmd := m.scheduleAutosolve()
@@ -214,7 +214,7 @@ func joinHorizontalWithGap(leftWidgets []string, rightWidgets []string, maxWidth
 func main() {
 	day := flag.Int("day", 0, "from 1 to 25")
 	part := flag.Int("part", 1, "1 or 2")
-	preset := flag.Int("preset", 1, "number of preset")
+	input := flag.Int("input", 1, "number of input")
 	autosolve := flag.Bool("autosolve", true, "run calculations at startup")
 	flag.Parse()
 
@@ -224,25 +224,25 @@ func main() {
 	} else {
 		*day = 1
 	}
-	p := tea.NewProgram(initModel(state, *day, *part-1, *preset, *autosolve))
+	p := tea.NewProgram(initModel(state, *day, *part-1, *input, *autosolve))
 	if _, err := p.Run(); err != nil {
 		fmt.Printf("Alas, there's been an error: %v", err)
 		os.Exit(1)
 	}
 }
 
-func initModel(state State, selectedDay, part, preset int, autosolve bool) (m model) {
+func initModel(state State, selectedDay, part, inputNum int, autosolve bool) (m model) {
 	m.state = state
 	m.selectedDay = selectedDay
 	calculations := collectCalculations()
 	for day := range m.dayStates {
 		d := &m.dayStates[day]
 		d.day = day
-		d.selectedPreset = 1
+		d.selectedInput = 1
 		d.calculate = calculations[day]
 	}
 	selectedDayState := &m.dayStates[selectedDay]
-	selectedDayState.selectedPreset = preset
+	selectedDayState.selectedInput = inputNum
 	selectedDayState.selectedPart = part
 	if state == CalendarState {
 		m.autosolve = autosolve
