@@ -15,6 +15,7 @@ type dayState struct {
 	selectedInput    int
 	selectedPart     int
 	scrollX, scrollY int
+	separatorOffset  int
 	calculate        Calculate
 	out              [2]output
 }
@@ -43,6 +44,10 @@ func (d *dayState) handleKeyMsg(msg tea.KeyMsg) tea.Cmd {
 		}
 	case "right":
 		d.scrollX++
+	case "-", "_":
+		d.separatorOffset--
+	case "+", "=":
+		d.separatorOffset++
 	case "enter", "space":
 		return d.calculateCmd(d.selectedInput, d.selectedPart)
 	case "tab":
@@ -120,6 +125,7 @@ func (d dayState) footerView(maxWidth int) string {
 
 	var controls []string
 	controls = append(controls, controlStyle.Render("[← ↑ → ↓: scroll]"))
+	controls = append(controls, controlStyle.Render("[- +: separator]"))
 	if d.out[d.selectedPart].isCalculating() {
 		controls = append(controls, highlightStyle.Render("[ calculating... ]"))
 	} else {
@@ -149,17 +155,24 @@ func (d dayState) answerView() string {
 func (d dayState) bodyView(size tea.WindowSizeMsg) string {
 	width := (size.Width - 3) / 2
 	height := size.Height
+	off := d.separatorOffset
+	minWidth := 10
+	if off < 0 && width+off < minWidth {
+		off = minWidth - width
+	} else if off > 0 && width-off < minWidth {
+		off = width - minWidth
+	}
 
 	input := d.inputs.lines(d.selectedInput)
 	output := d.out[d.selectedPart].lines
-	inputWindow := cropWindow(input, d.scrollX, d.scrollY, width, height)
-	outputWindow := cropWindow(output, d.scrollX, d.scrollY, width, height)
+	inputWindow := cropWindow(input, d.scrollX, d.scrollY, width+off, height)
+	outputWindow := cropWindow(output, d.scrollX, d.scrollY, width-off, height)
 
-	style := dataStyle.Width(width).Height(height).MarginLeft(1)
+	style := dataStyle.Height(height).MarginLeft(1)
 	return lipgloss.JoinHorizontal(
 		lipgloss.Top,
-		style.Render(strings.Join(inputWindow, "\n")),
-		style.Render(strings.Join(outputWindow, "\n")),
+		style.Width(width+off).Render(strings.Join(inputWindow, "\n")),
+		style.Width(width-off).Render(strings.Join(outputWindow, "\n")),
 	)
 }
 
