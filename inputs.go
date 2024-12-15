@@ -2,8 +2,9 @@ package main
 
 import (
 	"bufio"
+	"bytes"
+	"embed"
 	"log"
-	"os"
 	"regexp"
 	"strconv"
 
@@ -31,9 +32,12 @@ type loadedInputs [26]dayInputs
 
 var inputFileRegexp = regexp.MustCompile(`^day(\d\d)-(\d)-([a-z]+).txt$`)
 
+//go:embed inputs/*.txt
+var inputsFs embed.FS
+
 func loadInputs() tea.Msg {
 	var inputs loadedInputs
-	entries, err := os.ReadDir("./inputs")
+	entries, err := inputsFs.ReadDir("inputs")
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -61,12 +65,11 @@ func loadInputs() tea.Msg {
 }
 
 func loadLines(fileName string) (lines []string) {
-	file, err := os.Open("./inputs/" + fileName)
+	file, err := inputsFs.ReadFile("inputs/" + fileName)
 	if err != nil {
 		log.Fatal(err)
 	}
-	defer file.Close()
-	scanner := bufio.NewScanner(file)
+	scanner := bufio.NewScanner(bytes.NewReader(file))
 	for scanner.Scan() {
 		lines = append(lines, scanner.Text())
 	}
