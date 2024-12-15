@@ -3,6 +3,7 @@ package main
 import (
 	"fmt"
 	"strings"
+	"unicode/utf8"
 
 	"github.com/charmbracelet/lipgloss/v2"
 )
@@ -39,6 +40,12 @@ func ascii(selectedDay int, dayStars [26]int) []string {
 		`       |  -  -  |        |''':::::|    |  .  . .|`,
 		`                          r  rrGrr             c `,
 		`       |'. -   -|        |.  :::::|    |  .'   .|`,
+		`        ggg               $   GGG       bR  Rbbb `,
+		`       |...'..''|        |☄  :::::|    |..|\..''|`,
+		`                                                 `,
+		`       |        |        |        |    |        |`,
+		`                                                 `,
+		`       |        |        |        |    |        |`,
 		`                                                 `,
 		`       |        |        |        |    |        |`,
 	)
@@ -56,7 +63,7 @@ func applyStyles(selectedDay int, dayStars [26]int, styledAscii ...string) (rend
 	for i, day := 0, 0; i < len(styledAscii); i, day = i+2, day+1 {
 		styleRow := styledAscii[i]
 		asciiRow := styledAscii[i+1]
-		if len(styleRow) != len(asciiRow) {
+		if utf8.RuneCountInString(styleRow) != utf8.RuneCountInString(asciiRow) {
 			panic("Style and ASCII rows should have same length")
 		}
 		styleOverlays := parseStyleOverlays(styleRow)
@@ -139,16 +146,18 @@ func parseStyleOverlays(styleRow string) (styleOverlays []styleOverlay) {
 	return
 }
 
-func applyOverlays(styleOverlays []styleOverlay, asciiRow string, day int, stars int, selected bool) string {
+func applyOverlays(styleOverlays []styleOverlay, ascii string, day int, stars int, selected bool) string {
 	var sb strings.Builder
+	sb.WriteString(white.Render(" "))
 	i := 0
+	asciiRow := []rune(ascii)
 	for _, styleOverlay := range styleOverlays {
 		asciiPart := asciiRow[i : i+styleOverlay.len]
 		style := *styleOverlay.style
 		if selected {
 			style = style.Background(lipgloss.Color("#24243b"))
 		}
-		sb.WriteString(style.Render(asciiPart))
+		sb.WriteString(style.Render(string(asciiPart)))
 		i += styleOverlay.len
 	}
 	if day > 0 {
