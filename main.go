@@ -243,6 +243,7 @@ func initModel(state State, selectedDay, part, inputNum int, autosolve bool) (m 
 		d := &m.dayStates[day]
 		d.day = day
 		d.selectedInput = 1
+		d.selectedPart = 1
 		d.solve = calculations[day]
 	}
 	selectedDayState := &m.dayStates[selectedDay]

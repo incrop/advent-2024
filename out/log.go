@@ -31,3 +31,11 @@ func (l *Log) Printf(format string, args ...any) {
 		time.Sleep(l.delay)
 	}
 }
+
+func (l *Log) Append(lines []string) {
+	l.lines = append(l.lines, lines...)
+	l.ch <- l.lines
+	if l.delay > 0 {
+		time.Sleep(l.delay)
+	}
+}
