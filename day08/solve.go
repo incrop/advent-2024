@@ -2,9 +2,9 @@ package day08
 
 import "iter"
 
-type Calculate struct{}
+type Solve struct{}
 
-func (d Calculate) Part1(input []string, outputCh chan<- []string) int64 {
+func (d Solve) Part1(input []string, outputCh chan<- []string) int64 {
 	f := parse(input)
 	antinodeCoords := make(map[coord]bool)
 	for _, coords := range f.anntennaCoords {
@@ -21,7 +21,7 @@ func (d Calculate) Part1(input []string, outputCh chan<- []string) int64 {
 	return int64(len(antinodeCoords))
 }
 
-func (d Calculate) Part2(input []string, outputCh chan<- []string) int64 {
+func (d Solve) Part2(input []string, outputCh chan<- []string) int64 {
 	f := parse(input)
 	antinodeCoords := make(map[coord]bool)
 	for _, coords := range f.anntennaCoords {
@@ -119,6 +119,6 @@ func (f field) output(antinodeCoords map[coord]bool) (lines []string) {
 	return
 }
 
-func (d Calculate) CorrectAnswers() [2]int64 {
+func (d Solve) CorrectAnswers() [2]int64 {
 	return [2]int64{318, 1126}
 }

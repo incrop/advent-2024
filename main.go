@@ -89,13 +89,13 @@ func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 			m.selectedDay--
 			if m.selectedDay <= 0 {
 				m.selectedDay = 1
-				for m.dayStates[m.selectedDay+1].calculate != nil {
+				for m.dayStates[m.selectedDay+1].solve != nil {
 					m.selectedDay++
 				}
 			}
 		case "down":
 			m.selectedDay++
-			if m.dayStates[m.selectedDay].calculate == nil {
+			if m.dayStates[m.selectedDay].solve == nil {
 				m.selectedDay = 1
 			}
 		case "enter", "space":
@@ -184,10 +184,10 @@ func (m model) bodyView(size tea.WindowSizeMsg) string {
 
 func (m model) countDayStars() (stars [26]int) {
 	for day, d := range m.dayStates {
-		if d.calculate == nil {
+		if d.solve == nil {
 			continue
 		}
-		for part, correctAnswer := range d.calculate.CorrectAnswers() {
+		for part, correctAnswer := range d.solve.CorrectAnswers() {
 			answer := d.out[part].answer
 			if answer != nil && *answer == correctAnswer {
 				stars[day]++
@@ -243,7 +243,7 @@ func initModel(state State, selectedDay, part, inputNum int, autosolve bool) (m 
 		d := &m.dayStates[day]
 		d.day = day
 		d.selectedInput = 1
-		d.calculate = calculations[day]
+		d.solve = calculations[day]
 	}
 	selectedDayState := &m.dayStates[selectedDay]
 	selectedDayState.selectedInput = inputNum

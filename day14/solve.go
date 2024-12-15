@@ -7,9 +7,9 @@ import (
 	"strings"
 )
 
-type Calculate struct{}
+type Solve struct{}
 
-func (d Calculate) Part1(input []string, outputCh chan<- []string) int64 {
+func (d Solve) Part1(input []string, outputCh chan<- []string) int64 {
 	f := parse(input)
 	for range 100 {
 		outputCh <- f.output()
@@ -19,7 +19,7 @@ func (d Calculate) Part1(input []string, outputCh chan<- []string) int64 {
 	return f.safetyFactor()
 }
 
-func (d Calculate) Part2(input []string, outputCh chan<- []string) int64 {
+func (d Solve) Part2(input []string, outputCh chan<- []string) int64 {
 	f := parse(input)
 	outputCh <- f.output()
 	bestCohesiveness := f.cohesiveness()
@@ -151,6 +151,6 @@ func (f field) output() (lines []string) {
 	return lines
 }
 
-func (d Calculate) CorrectAnswers() [2]int64 {
+func (d Solve) CorrectAnswers() [2]int64 {
 	return [2]int64{220971520, 6355}
 }

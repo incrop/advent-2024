@@ -4,9 +4,9 @@ import (
 	"strings"
 )
 
-type Calculate struct{}
+type Solve struct{}
 
-func (d Calculate) Part1(input []string, outputCh chan<- []string) int64 {
+func (d Solve) Part1(input []string, outputCh chan<- []string) int64 {
 	f := parse(input)
 	outputCh <- f.output()
 	visitedCount := 0
@@ -27,7 +27,7 @@ func (d Calculate) Part1(input []string, outputCh chan<- []string) int64 {
 	return int64(visitedCount)
 }
 
-func (d Calculate) Part2(input []string, outputCh chan<- []string) int64 {
+func (d Solve) Part2(input []string, outputCh chan<- []string) int64 {
 	f := parse(input)
 	found := make(map[[2]int]bool)
 	f.findLoopPositionsRecusive(found, true, outputCh)
@@ -161,6 +161,6 @@ func (f field) output() (o []string) {
 	return
 }
 
-func (d Calculate) CorrectAnswers() [2]int64 {
+func (d Solve) CorrectAnswers() [2]int64 {
 	return [2]int64{5067, 1793}
 }

@@ -8,9 +8,9 @@ import (
 	"strings"
 )
 
-type Calculate struct{}
+type Solve struct{}
 
-func (d Calculate) Part1(input []string, outputCh chan<- []string) int64 {
+func (d Solve) Part1(input []string, outputCh chan<- []string) int64 {
 	s := parse(input)
 	l := out.NewLog(outputCh)
 	for range 25 {
@@ -21,7 +21,7 @@ func (d Calculate) Part1(input []string, outputCh chan<- []string) int64 {
 	return s.count()
 }
 
-func (d Calculate) Part2(input []string, outputCh chan<- []string) int64 {
+func (d Solve) Part2(input []string, outputCh chan<- []string) int64 {
 	s := parse(input)
 	l := out.NewLog(outputCh)
 	for range 75 {
@@ -89,6 +89,6 @@ func (s stones) String() string {
 	return sb.String()
 }
 
-func (d Calculate) CorrectAnswers() [2]int64 {
+func (d Solve) CorrectAnswers() [2]int64 {
 	return [2]int64{189167, 225253278506288}
 }

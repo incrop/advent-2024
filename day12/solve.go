@@ -1,14 +1,14 @@
 package day12
 
-type Calculate struct{}
+type Solve struct{}
 
-func (d Calculate) Part1(input []string, outputCh chan<- []string) int64 {
+func (d Solve) Part1(input []string, outputCh chan<- []string) int64 {
 	f := parse(input)
 	outputCh <- f.output()
 	return f.calculateTotalPrice(false)
 }
 
-func (d Calculate) Part2(input []string, outputCh chan<- []string) int64 {
+func (d Solve) Part2(input []string, outputCh chan<- []string) int64 {
 	f := parse(input)
 	outputCh <- f.output()
 	return f.calculateTotalPrice(true)
@@ -100,47 +100,6 @@ func (f field) calculateTotalPrice(discount bool) (total int64) {
 	return
 }
 
-func (f field) _calculateTotalPrice() (total int64) {
-	visited := make([][]bool, len(f))
-	for i, line := range f {
-		visited[i] = make([]bool, len(line))
-	}
-	var regionAreaAndPerimeter func(i, j int) (area, perimeter int)
-	regionAreaAndPerimeter = func(i, j int) (area, perimeter int) {
-		area = 1
-		r := f[i][j]
-		visited[i][j] = true
-		for _, off := range dirOffsets {
-			ii, jj := i+off[0], j+off[1]
-			if ii < 0 || ii >= len(f) || jj < 0 || jj >= len(f[ii]) {
-				perimeter++
-				continue
-			}
-			rr := f[ii][jj]
-			if r != rr {
-				perimeter++
-				continue
-			}
-			if visited[ii][jj] {
-				continue
-			}
-			moreArea, morePerimeter := regionAreaAndPerimeter(ii, jj)
-			area += moreArea
-			perimeter += morePerimeter
-		}
-		return
-	}
-	for i, line := range f {
-		for j := range line {
-			if !visited[i][j] {
-				area, perimeter := regionAreaAndPerimeter(i, j)
-				total += int64(area) * int64(perimeter)
-			}
-		}
-	}
-	return
-}
-
 func parse(input []string) (f field) {
 	for _, line := range input {
 		f = append(f, line)
@@ -182,6 +141,6 @@ func (f field) output() (lines []string) {
 	return
 }
 
-func (d Calculate) CorrectAnswers() [2]int64 {
+func (d Solve) CorrectAnswers() [2]int64 {
 	return [2]int64{1464678, 877492}
 }

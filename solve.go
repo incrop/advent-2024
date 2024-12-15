@@ -19,7 +19,7 @@ import (
 	tea "github.com/charmbracelet/bubbletea/v2"
 )
 
-type Calculate interface {
+type Solve interface {
 	Part1(input []string, outputCh chan<- []string) int64
 	Part2(input []string, outputCh chan<- []string) int64
 	CorrectAnswers() [2]int64
@@ -31,7 +31,7 @@ type AnswerMsg struct {
 	answer int64
 }
 
-func (d *dayState) calculateCmd(inputNum int, part int) tea.Cmd {
+func (d *dayState) solveCmd(inputNum int, part int) tea.Cmd {
 	out := &d.out[part]
 	if out.isCalculating() {
 		return nil
@@ -42,12 +42,12 @@ func (d *dayState) calculateCmd(inputNum int, part int) tea.Cmd {
 	out.answer = nil
 	out.lines = nil
 	return tea.Batch(
-		d.runCalculateCmd(part, input, outputCh),
+		d.runSolveCmd(part, input, outputCh),
 		d.recvOutputCmd(part, outputCh),
 	)
 }
 
-func (d dayState) runCalculateCmd(part int, input []string, outputCh chan<- []string) tea.Cmd {
+func (d dayState) runSolveCmd(part int, input []string, outputCh chan<- []string) tea.Cmd {
 	return func() tea.Msg {
 		defer close(outputCh)
 		answerMsg := AnswerMsg{
@@ -56,9 +56,9 @@ func (d dayState) runCalculateCmd(part int, input []string, outputCh chan<- []st
 			answer: 0,
 		}
 		if part == 0 {
-			answerMsg.answer = d.calculate.Part1(input, outputCh)
+			answerMsg.answer = d.solve.Part1(input, outputCh)
 		} else {
-			answerMsg.answer = d.calculate.Part2(input, outputCh)
+			answerMsg.answer = d.solve.Part2(input, outputCh)
 		}
 		return answerMsg
 	}
@@ -84,23 +84,23 @@ func (d dayState) recvOutputCmd(part int, outputChan <-chan []string) tea.Cmd {
 	}
 }
 
-func collectCalculations() [26]Calculate {
-	return [26]Calculate{
+func collectCalculations() [26]Solve {
+	return [26]Solve{
 		nil,
-		day01.Calculate{},
-		day02.Calculate{},
-		day03.Calculate{},
-		day04.Calculate{},
-		day05.Calculate{},
-		day06.Calculate{},
-		day07.Calculate{},
-		day08.Calculate{},
-		day09.Calculate{},
-		day10.Calculate{},
-		day11.Calculate{},
-		day12.Calculate{},
-		day13.Calculate{},
-		day14.Calculate{},
+		day01.Solve{},
+		day02.Solve{},
+		day03.Solve{},
+		day04.Solve{},
+		day05.Solve{},
+		day06.Solve{},
+		day07.Solve{},
+		day08.Solve{},
+		day09.Solve{},
+		day10.Solve{},
+		day11.Solve{},
+		day12.Solve{},
+		day13.Solve{},
+		day14.Solve{},
 	}
 }
 
@@ -108,13 +108,13 @@ func (m *model) scheduleAutosolve() tea.Cmd {
 	var commands []tea.Cmd
 	for day := range m.dayStates {
 		d := &m.dayStates[day]
-		if d.calculate == nil {
+		if d.solve == nil {
 			continue
 		}
 		commands = append(
 			commands,
-			d.calculateCmd(1, 0),
-			d.calculateCmd(1, 1),
+			d.solveCmd(1, 0),
+			d.solveCmd(1, 1),
 		)
 	}
 	return tea.Batch(commands...)

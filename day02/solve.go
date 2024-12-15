@@ -7,11 +7,11 @@ import (
 	"strings"
 )
 
-type Calculate struct{}
+type Solve struct{}
 
 type report []int
 
-func (d Calculate) Part1(input []string, outputCh chan<- []string) int64 {
+func (d Solve) Part1(input []string, outputCh chan<- []string) int64 {
 	safeReports := 0
 	l := out.NewLog(outputCh)
 	for _, r := range parse(input) {
@@ -26,7 +26,7 @@ func (d Calculate) Part1(input []string, outputCh chan<- []string) int64 {
 	return int64(safeReports)
 }
 
-func (d Calculate) Part2(input []string, outputCh chan<- []string) int64 {
+func (d Solve) Part2(input []string, outputCh chan<- []string) int64 {
 	safeReports := 0
 	l := out.NewLog(outputCh)
 	for _, r := range parse(input) {
@@ -104,6 +104,6 @@ func parse(input []string) (reports []report) {
 	return
 }
 
-func (d Calculate) CorrectAnswers() [2]int64 {
+func (d Solve) CorrectAnswers() [2]int64 {
 	return [2]int64{236, 308}
 }

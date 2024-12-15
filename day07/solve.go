@@ -8,9 +8,9 @@ import (
 	"strings"
 )
 
-type Calculate struct{}
+type Solve struct{}
 
-func (d Calculate) Part1(input []string, outputCh chan<- []string) int64 {
+func (d Solve) Part1(input []string, outputCh chan<- []string) int64 {
 	calibrationResult := int64(0)
 	l := out.NewLog(outputCh)
 	for _, equation := range parse(input) {
@@ -22,7 +22,7 @@ func (d Calculate) Part1(input []string, outputCh chan<- []string) int64 {
 	return calibrationResult
 }
 
-func (d Calculate) Part2(input []string, outputCh chan<- []string) int64 {
+func (d Solve) Part2(input []string, outputCh chan<- []string) int64 {
 	calibrationResult := int64(0)
 	l := out.NewLog(outputCh)
 	for _, equation := range parse(input) {
@@ -110,6 +110,6 @@ func parse(input []string) (eqs []equation) {
 	return
 }
 
-func (d Calculate) CorrectAnswers() [2]int64 {
+func (d Solve) CorrectAnswers() [2]int64 {
 	return [2]int64{4364915411363, 38322057216320}
 }

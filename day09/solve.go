@@ -6,16 +6,16 @@ import (
 	"strings"
 )
 
-type Calculate struct{}
+type Solve struct{}
 
-func (d Calculate) Part1(input []string, outputCh chan<- []string) int64 {
+func (d Solve) Part1(input []string, outputCh chan<- []string) int64 {
 	blocks := parse(input)
 	blocks = blocks.compactFragmenting()
 	outputCh <- blocks.output()
 	return blocks.checksum()
 }
 
-func (d Calculate) Part2(input []string, outputCh chan<- []string) int64 {
+func (d Solve) Part2(input []string, outputCh chan<- []string) int64 {
 	blocks := parse(input)
 	blocks = blocks.compactContinuous()
 	outputCh <- blocks.output()
@@ -219,6 +219,6 @@ func (blocks blocks) output() (lines []string) {
 	return lines
 }
 
-func (d Calculate) CorrectAnswers() [2]int64 {
+func (d Solve) CorrectAnswers() [2]int64 {
 	return [2]int64{6259790630969, 6289564433984}
 }

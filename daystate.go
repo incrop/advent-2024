@@ -16,7 +16,7 @@ type dayState struct {
 	selectedPart     int
 	scrollX, scrollY int
 	separatorOffset  int
-	calculate        Calculate
+	solve            Solve
 	out              [2]output
 }
 
@@ -49,7 +49,7 @@ func (d *dayState) handleKeyMsg(msg tea.KeyMsg) tea.Cmd {
 	case "+", "=":
 		d.separatorOffset++
 	case "enter", "space":
-		return d.calculateCmd(d.selectedInput, d.selectedPart)
+		return d.solveCmd(d.selectedInput, d.selectedPart)
 	case "tab":
 		d.selectedPart = 1 - d.selectedPart
 	case "1", "2", "3", "4", "5", "6", "7", "8", "9":
@@ -127,9 +127,9 @@ func (d dayState) footerView(maxWidth int) string {
 	controls = append(controls, controlStyle.Render("[← ↑ → ↓: scroll]"))
 	controls = append(controls, controlStyle.Render("[- +: separator]"))
 	if d.out[d.selectedPart].isCalculating() {
-		controls = append(controls, highlightStyle.Render("[ calculating... ]"))
+		controls = append(controls, highlightStyle.Render("[ solving... ]"))
 	} else {
-		controls = append(controls, controlStyle.Render("[Enter: calculate]"))
+		controls = append(controls, controlStyle.Render("[Enter: solve]"))
 	}
 
 	return joinHorizontalWithGap(
@@ -145,7 +145,7 @@ func (d dayState) answerView() string {
 		return "-"
 	}
 	view := dataStyle.Render(strconv.FormatInt(*answer, 10))
-	coorectAnswer := d.calculate.CorrectAnswers()[d.selectedPart]
+	coorectAnswer := d.solve.CorrectAnswers()[d.selectedPart]
 	if coorectAnswer == *answer {
 		view += starStyle.Render("*")
 	}

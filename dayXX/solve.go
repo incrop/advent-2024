@@ -1,14 +1,14 @@
 package dayXX
 
-type Calculate struct{}
+type Solve struct{}
 
-func (d Calculate) Part1(input []string, outputCh chan<- []string) int64 {
+func (d Solve) Part1(input []string, outputCh chan<- []string) int64 {
 	p := parse(input)
 	outputCh <- p.output()
 	return 0
 }
 
-func (d Calculate) Part2(input []string, outputCh chan<- []string) int64 {
+func (d Solve) Part2(input []string, outputCh chan<- []string) int64 {
 	p := parse(input)
 	outputCh <- p.output()
 	return 0
@@ -27,6 +27,6 @@ func (p parsed) output() (lines []string) {
 	return
 }
 
-func (d Calculate) CorrectAnswers() [2]int64 {
+func (d Solve) CorrectAnswers() [2]int64 {
 	return [2]int64{-1, -1}
 }

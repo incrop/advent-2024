@@ -7,15 +7,15 @@ import (
 	"strconv"
 )
 
-type Calculate struct{}
+type Solve struct{}
 
-func (d Calculate) Part1(input []string, outputCh chan<- []string) int64 {
+func (d Solve) Part1(input []string, outputCh chan<- []string) int64 {
 	ms := parse(input)
 	l := out.NewLog(outputCh)
 	return ms.solutionsCostSum(l)
 }
 
-func (d Calculate) Part2(input []string, outputCh chan<- []string) int64 {
+func (d Solve) Part2(input []string, outputCh chan<- []string) int64 {
 	ms := parse(input)
 	for i := range ms {
 		ms[i].prize[0] += 10000000000000
@@ -123,6 +123,6 @@ func parse(input []string) (ms machines) {
 	return
 }
 
-func (d Calculate) CorrectAnswers() [2]int64 {
+func (d Solve) CorrectAnswers() [2]int64 {
 	return [2]int64{36571, 85527711500010}
 }

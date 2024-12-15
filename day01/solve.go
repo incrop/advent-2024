@@ -8,9 +8,9 @@ import (
 	"strings"
 )
 
-type Calculate struct{}
+type Solve struct{}
 
-func (d Calculate) Part1(input []string, outputCh chan<- []string) int64 {
+func (d Solve) Part1(input []string, outputCh chan<- []string) int64 {
 	left, right := parse(input)
 	slices.Sort(left)
 	slices.Sort(right)
@@ -28,7 +28,7 @@ func (d Calculate) Part1(input []string, outputCh chan<- []string) int64 {
 	return diffSum
 }
 
-func (d Calculate) Part2(input []string, outputCh chan<- []string) int64 {
+func (d Solve) Part2(input []string, outputCh chan<- []string) int64 {
 	left, right := parse(input)
 	rightFreq := make(map[int]int)
 	for _, numRight := range right {
@@ -62,6 +62,6 @@ func parse(input []string) ([]int, []int) {
 	return left, right
 }
 
-func (d Calculate) CorrectAnswers() [2]int64 {
+func (d Solve) CorrectAnswers() [2]int64 {
 	return [2]int64{765748, 27732508}
 }

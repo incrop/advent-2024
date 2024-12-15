@@ -1,8 +1,8 @@
 package day04
 
-type Calculate struct{}
+type Solve struct{}
 
-func (d Calculate) Part1(input []string, outputCh chan<- []string) int64 {
+func (d Solve) Part1(input []string, outputCh chan<- []string) int64 {
 	xmasCount := int64(0)
 	f := fieldFrom(input)
 	for i, line := range input {
@@ -50,7 +50,7 @@ func readsXmsInThisDirection(input []string, i, j, di, dj int) bool {
 	return true
 }
 
-func (d Calculate) Part2(input []string, outputCh chan<- []string) int64 {
+func (d Solve) Part2(input []string, outputCh chan<- []string) int64 {
 	xmasCount := int64(0)
 	f := fieldFrom(input)
 	for i, line := range input {
@@ -129,6 +129,6 @@ func (f field) output() (o []string) {
 	return
 }
 
-func (d Calculate) CorrectAnswers() [2]int64 {
+func (d Solve) CorrectAnswers() [2]int64 {
 	return [2]int64{2569, 1998}
 }
