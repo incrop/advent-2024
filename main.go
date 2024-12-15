@@ -118,6 +118,10 @@ var textStyle lipgloss.Style = lipgloss.NewStyle().
 var dataStyle lipgloss.Style = lipgloss.NewStyle().
 	Foreground(lipgloss.Color("#cccccc")).
 	Background(lipgloss.Color("#10101a"))
+var starStyle lipgloss.Style = lipgloss.NewStyle().
+	Bold(true).
+	Foreground(lipgloss.Color("#ffff66")).
+	MarginLeft(1)
 
 func (m model) View() string {
 	if m.size == nil {

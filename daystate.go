@@ -97,6 +97,14 @@ func (d dayState) headerView(maxWidth int) string {
 			controls = append(controls, controlStyle.Render(controlText))
 		}
 	}
+	for part, partText := range []string{"[%sPart 1]", "[%sPart 2]"} {
+		if d.selectedPart == part {
+			controls = append(controls, highlightStyle.Render(fmt.Sprintf(partText, "")))
+		} else {
+			controls = append(controls, controlStyle.Render(fmt.Sprintf(partText, "Tab: ")))
+		}
+	}
+
 	controls = append(controls, controlStyle.Render("[Esc: back]"))
 
 	return joinHorizontalWithGap(
@@ -108,16 +116,10 @@ func (d dayState) headerView(maxWidth int) string {
 
 func (d dayState) footerView(maxWidth int) string {
 	answerLabel := textStyle.Padding(1).Render("Answer:")
-	answer := dataStyle.Render(d.answerText())
+	answer := d.answerView()
 
 	var controls []string
-	for part, partText := range []string{"[%sPart 1]", "[%sPart 2]"} {
-		if d.selectedPart == part {
-			controls = append(controls, highlightStyle.Render(fmt.Sprintf(partText, "")))
-		} else {
-			controls = append(controls, controlStyle.Render(fmt.Sprintf(partText, "Tab: ")))
-		}
-	}
+	controls = append(controls, controlStyle.Render("[← ↑ → ↓: scroll]"))
 	if d.out[d.selectedPart].isCalculating() {
 		controls = append(controls, highlightStyle.Render("[ calculating... ]"))
 	} else {
@@ -131,12 +133,17 @@ func (d dayState) footerView(maxWidth int) string {
 	)
 }
 
-func (d dayState) answerText() string {
+func (d dayState) answerView() string {
 	answer := d.out[d.selectedPart].answer
 	if answer == nil {
 		return "-"
 	}
-	return strconv.FormatInt(*answer, 10)
+	view := dataStyle.Render(strconv.FormatInt(*answer, 10))
+	coorectAnswer := d.calculate.CorrectAnswers()[d.selectedPart]
+	if coorectAnswer == *answer {
+		view += starStyle.Render("*")
+	}
+	return view
 }
 
 func (d dayState) bodyView(size tea.WindowSizeMsg) string {
