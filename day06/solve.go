@@ -35,12 +35,10 @@ func (d Solve) Part2(input []string, outputCh chan<- []string) int64 {
 }
 
 func (f field) findLoopPositionsRecusive(found map[[2]int]bool, blockLeft bool, outputCh chan<- []string) bool {
-	// outputCh <- f.output()
 	currCell := f.cell(f.pos)
 	currVisited := &currCell.visited[f.dir]
 	if *currVisited {
 		outputCh <- f.output()
-		// time.Sleep(time.Second * 10)
 		return true
 	}
 	*currVisited = true
