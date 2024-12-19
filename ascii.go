@@ -48,8 +48,8 @@ func ascii(selectedDay int, dayStars [26]int) []string {
 		`       | '.~  '.|        | : :::::|    |──┤AoC├o|`,
 		`        g $ggi g            rr          rrrrrrrr `,
 		`       |. *'.~ :|        |  '.    |    |┬o┤ten├─|`,
-		`                                                 `,
-		`       |        |        |        |    |        |`,
+		`         ggggggg             rB         r$rrrrrr `,
+		`       | '..' .'|        |   'o   |    |┘*┤yrs├─|`,
 		`                                                 `,
 		`       |        |        |        |    |        |`,
 	)

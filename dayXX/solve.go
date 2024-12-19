@@ -24,7 +24,7 @@ func parse(input []string) (parsed parsed) {
 }
 
 func (p parsed) output() (lines []string) {
-	return
+	return p
 }
 
 func (d Solve) CorrectAnswers() [2]int64 {
