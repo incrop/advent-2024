@@ -40,18 +40,22 @@ func ascii(selectedDay int, dayStars [26]int) []string {
 		`       |  -  -  |        |''':::::|    |  .  . .|`,
 		`                          r  rr&rr             c `,
 		`       |'. -   -|        |.  :::::|    |  .'   .|`,
-		`        ggg               $  r&&&r      OR  RObb `,
+		`        ggg               ¢  r&&&r      OR  RObb `,
 		`       |...'..''|        |☄  :::::|    |..|\..''|`,
 		`        g  ggg            r  &&&&&      rrrrrrrr `,
 		`       |.  ''.  |        |.  :::::|    |──┬┴┴┴┬─|`,
-		`         ggi  gg           r rrbrr      rrrrrrrr `,
-		`       | '.~  '.|        | : :::::|    |──┤AoC├o|`,
+		`         ggi  gg           r ¢rbrr      rrrrrrrr `,
+		`       | '.~  '.|        | : .::::|    |──┤AoC├o|`,
 		`        g $ggi g            rr          rrrrrrrr `,
 		`       |. *'.~ :|        |  '.    |    |┬o┤ten├─|`,
 		`         ggggggg             rB         r$rrrrrr `,
 		`       | '..' .'|        |   'o   |    |┘*┤yrs├─|`,
 		`         i ggg            r   rr        rrrrrrrr `,
 		`       | ~ ..'  |        |:   '.  |    |─┘├┬┬┬┴─|`,
+		`        ggg                ¢  $ r       rrrGGOGG `,
+		`       |'''))   |        | o. * : '.  .'──┘>>o<<|`,
+		`                                                 `,
+		`.------'        '------. |          ''          |`,
 	)
 }
 
@@ -97,6 +101,7 @@ var red lipgloss.Style = lipgloss.NewStyle().Bold(true).Foreground(lipgloss.Colo
 var blue lipgloss.Style = lipgloss.NewStyle().Bold(true).Foreground(lipgloss.Color("#0066ff"))
 var greener lipgloss.Style = lipgloss.NewStyle().Bold(true).Foreground(lipgloss.Color("#009900"))
 var star lipgloss.Style = lipgloss.NewStyle().Bold(true).Foreground(lipgloss.Color("#ffff66"))
+var comet lipgloss.Style = lipgloss.NewStyle().Bold(true).Foreground(lipgloss.Color("#bee4e7"))
 
 func parseStyleOverlays(styleRow string) (styleOverlays []styleOverlay) {
 	currentOverlay := styleOverlay{
@@ -136,6 +141,8 @@ func parseStyleOverlays(styleRow string) (styleOverlays []styleOverlay) {
 			nextStyle = &greener
 		case '$':
 			nextStyle = &star
+		case '¢':
+			nextStyle = &comet
 		default:
 			panic(fmt.Sprintf("Unexpected symbol %c", r))
 		}
