@@ -2,7 +2,6 @@ package main
 
 import (
 	"fmt"
-	"strconv"
 	"strings"
 
 	tea "github.com/charmbracelet/bubbletea/v2"
@@ -23,7 +22,7 @@ type dayState struct {
 type output struct {
 	ch     <-chan []string
 	lines  []string
-	answer *int64
+	answer string
 }
 
 func (out output) isCalculating() bool {
@@ -68,9 +67,9 @@ func (d *dayState) handleOutputMsg(msg OutputMsg) tea.Cmd {
 }
 
 func (d *dayState) handleAnswerMsg(msg AnswerMsg) tea.Cmd {
-	newAnswer := int64(msg.answer)
+	newAnswer := msg.answer
 	out := &d.out[msg.part]
-	out.answer = &newAnswer
+	out.answer = newAnswer
 	out.ch = nil
 	return nil
 }
@@ -141,12 +140,12 @@ func (d dayState) footerView(maxWidth int) string {
 
 func (d dayState) answerView() string {
 	answer := d.out[d.selectedPart].answer
-	if answer == nil {
+	if answer == "" {
 		return "-"
 	}
-	view := dataStyle.Render(strconv.FormatInt(*answer, 10))
+	view := dataStyle.Render(answer)
 	coorectAnswer := d.solve.CorrectAnswers()[d.selectedPart]
-	if coorectAnswer == *answer {
+	if coorectAnswer == answer {
 		view += starStyle.Render("*")
 	}
 	return view

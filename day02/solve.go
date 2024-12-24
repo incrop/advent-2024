@@ -11,7 +11,7 @@ type Solve struct{}
 
 type report []int
 
-func (d Solve) Part1(input []string, outputCh chan<- []string) int64 {
+func (d Solve) Part1(input []string, outputCh chan<- []string) string {
 	safeReports := 0
 	l := out.NewLog(outputCh)
 	for _, r := range parse(input) {
@@ -23,10 +23,10 @@ func (d Solve) Part1(input []string, outputCh chan<- []string) int64 {
 			l.Printf("unsafe at idx %d", unsafeIdx)
 		}
 	}
-	return int64(safeReports)
+	return strconv.Itoa(safeReports)
 }
 
-func (d Solve) Part2(input []string, outputCh chan<- []string) int64 {
+func (d Solve) Part2(input []string, outputCh chan<- []string) string {
 	safeReports := 0
 	l := out.NewLog(outputCh)
 	for _, r := range parse(input) {
@@ -62,7 +62,7 @@ func (d Solve) Part2(input []string, outputCh chan<- []string) int64 {
 			continue
 		}
 	}
-	return int64(safeReports)
+	return strconv.Itoa(safeReports)
 }
 
 func (report report) unsafeIdx() int {
@@ -104,6 +104,6 @@ func parse(input []string) (reports []report) {
 	return
 }
 
-func (d Solve) CorrectAnswers() [2]int64 {
-	return [2]int64{236, 308}
+func (d Solve) CorrectAnswers() [2]string {
+	return [2]string{"236", "308"}
 }

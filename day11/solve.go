@@ -10,7 +10,7 @@ import (
 
 type Solve struct{}
 
-func (d Solve) Part1(input []string, outputCh chan<- []string) int64 {
+func (d Solve) Part1(input []string, outputCh chan<- []string) string {
 	s := parse(input)
 	l := out.NewLog(outputCh)
 	for range 25 {
@@ -18,10 +18,10 @@ func (d Solve) Part1(input []string, outputCh chan<- []string) int64 {
 		s = s.expand()
 	}
 	l.Printf("%s", s)
-	return s.count()
+	return strconv.FormatInt(s.count(), 10)
 }
 
-func (d Solve) Part2(input []string, outputCh chan<- []string) int64 {
+func (d Solve) Part2(input []string, outputCh chan<- []string) string {
 	s := parse(input)
 	l := out.NewLog(outputCh)
 	for range 75 {
@@ -29,7 +29,7 @@ func (d Solve) Part2(input []string, outputCh chan<- []string) int64 {
 		s = s.expand()
 	}
 	l.Printf("%s", s)
-	return s.count()
+	return strconv.FormatInt(s.count(), 10)
 }
 
 type stones map[int64]int64
@@ -89,6 +89,6 @@ func (s stones) String() string {
 	return sb.String()
 }
 
-func (d Solve) CorrectAnswers() [2]int64 {
-	return [2]int64{189167, 225253278506288}
+func (d Solve) CorrectAnswers() [2]string {
+	return [2]string{"189167", "225253278506288"}
 }

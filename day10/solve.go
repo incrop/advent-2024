@@ -1,13 +1,16 @@
 package day10
 
-import "strings"
+import (
+	"strconv"
+	"strings"
+)
 
 type Solve struct{}
 
-func (d Solve) Part1(input []string, outputCh chan<- []string) int64 {
+func (d Solve) Part1(input []string, outputCh chan<- []string) string {
 	f := parse(input)
 	outputCh <- f.output()
-	return int64(f.calculateScoreSum())
+	return strconv.Itoa(f.calculateScoreSum())
 }
 
 func (f field) calculateScoreSum() (sum int) {
@@ -46,10 +49,10 @@ func (f field) calculateScoreSum() (sum int) {
 	return
 }
 
-func (d Solve) Part2(input []string, outputCh chan<- []string) int64 {
+func (d Solve) Part2(input []string, outputCh chan<- []string) string {
 	f := parse(input)
 	outputCh <- f.output()
-	return int64(f.calculateRatingSum())
+	return strconv.FormatInt(f.calculateRatingSum(), 10)
 }
 
 func (f field) calculateRatingSum() (sum int64) {
@@ -168,6 +171,6 @@ func (f field) output() (lines []string) {
 	return
 }
 
-func (d Solve) CorrectAnswers() [2]int64 {
-	return [2]int64{698, 1436}
+func (d Solve) CorrectAnswers() [2]string {
+	return [2]string{"698", "1436"}
 }

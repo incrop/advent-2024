@@ -9,17 +9,17 @@ import (
 
 type Solve struct{}
 
-func (d Solve) Part1(input []string, outputCh chan<- []string) int64 {
+func (d Solve) Part1(input []string, outputCh chan<- []string) string {
 	f := parse(input)
 	for range 100 {
 		outputCh <- f.output()
 		f.progressOneSecond()
 	}
 	outputCh <- f.output()
-	return f.safetyFactor()
+	return strconv.FormatInt(f.safetyFactor(), 10)
 }
 
-func (d Solve) Part2(input []string, outputCh chan<- []string) int64 {
+func (d Solve) Part2(input []string, outputCh chan<- []string) string {
 	f := parse(input)
 	outputCh <- f.output()
 	bestCohesiveness := f.cohesiveness()
@@ -30,12 +30,12 @@ func (d Solve) Part2(input []string, outputCh chan<- []string) int64 {
 		if cohesiveness := f.cohesiveness(); cohesiveness > bestCohesiveness {
 			outputCh <- f.output()
 			if cohesiveness > bestCohesiveness*2 {
-				return secondsElapsed
+				break
 			}
 			bestCohesiveness = cohesiveness
 		}
 	}
-	return secondsElapsed
+	return strconv.FormatInt(secondsElapsed, 10)
 }
 
 type robot struct {
@@ -151,6 +151,6 @@ func (f field) output() (lines []string) {
 	return lines
 }
 
-func (d Solve) CorrectAnswers() [2]int64 {
-	return [2]int64{220971520, 6355}
+func (d Solve) CorrectAnswers() [2]string {
+	return [2]string{"220971520", "6355"}
 }

@@ -2,16 +2,18 @@ package day19
 
 import (
 	"incrop/advent-2024/out"
+	"strconv"
 	"strings"
 )
 
 type Solve struct{}
 
-func (d Solve) Part1(input []string, outputCh chan<- []string) (result int64) {
+func (d Solve) Part1(input []string, outputCh chan<- []string) string {
 	r := parse(input)
 	l := out.NewLog(outputCh)
 	l.Printf("%s", strings.Join(r.towels, ", "))
 	l.Printf("")
+	result := 0
 	for _, design := range r.designs {
 		parts := findWayToSplit(design, r.towels)
 		if len(parts) > 0 {
@@ -21,7 +23,7 @@ func (d Solve) Part1(input []string, outputCh chan<- []string) (result int64) {
 			l.Printf("impossible")
 		}
 	}
-	return
+	return strconv.Itoa(result)
 }
 
 func findWayToSplit(design string, towels []string) []string {
@@ -51,17 +53,18 @@ func findWayToSplit(design string, towels []string) []string {
 	return recurse(design)
 }
 
-func (d Solve) Part2(input []string, outputCh chan<- []string) (result int64) {
+func (d Solve) Part2(input []string, outputCh chan<- []string) string {
 	r := parse(input)
 	l := out.NewLog(outputCh)
 	l.Printf("%s", strings.Join(r.towels, ", "))
 	l.Printf("")
+	result := int64(0)
 	for _, design := range r.designs {
 		waysToSplit := countWaysToSplit(design, r.towels)
 		l.Printf("ways to split: %d", waysToSplit)
 		result += waysToSplit
 	}
-	return
+	return strconv.FormatInt(result, 10)
 }
 
 func countWaysToSplit(design string, towels []string) int64 {
@@ -99,6 +102,6 @@ func parse(input []string) (r requirements) {
 	return
 }
 
-func (d Solve) CorrectAnswers() [2]int64 {
-	return [2]int64{206, 622121814629343}
+func (d Solve) CorrectAnswers() [2]string {
+	return [2]string{"206", "622121814629343"}
 }

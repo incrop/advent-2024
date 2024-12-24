@@ -29,15 +29,15 @@ import (
 )
 
 type Solve interface {
-	Part1(input []string, outputCh chan<- []string) int64
-	Part2(input []string, outputCh chan<- []string) int64
-	CorrectAnswers() [2]int64
+	Part1(input []string, outputCh chan<- []string) string
+	Part2(input []string, outputCh chan<- []string) string
+	CorrectAnswers() [2]string
 }
 
 type AnswerMsg struct {
 	day    int
 	part   int
-	answer int64
+	answer string
 }
 
 func (d *dayState) solveCmd(inputNum int, part int) tea.Cmd {
@@ -48,7 +48,7 @@ func (d *dayState) solveCmd(inputNum int, part int) tea.Cmd {
 	input := d.inputs.lines(inputNum)
 	outputCh := make(chan []string)
 	out.ch = outputCh
-	out.answer = nil
+	out.answer = ""
 	out.lines = nil
 	return tea.Batch(
 		d.runSolveCmd(part, input, outputCh),
@@ -59,17 +59,17 @@ func (d *dayState) solveCmd(inputNum int, part int) tea.Cmd {
 func (d dayState) runSolveCmd(part int, input []string, outputCh chan<- []string) tea.Cmd {
 	return func() tea.Msg {
 		defer close(outputCh)
-		answerMsg := AnswerMsg{
+		var answer string
+		if part == 0 {
+			answer = d.solve.Part1(input, outputCh)
+		} else {
+			answer = d.solve.Part2(input, outputCh)
+		}
+		return AnswerMsg{
 			day:    d.day,
 			part:   part,
-			answer: 0,
+			answer: answer,
 		}
-		if part == 0 {
-			answerMsg.answer = d.solve.Part1(input, outputCh)
-		} else {
-			answerMsg.answer = d.solve.Part2(input, outputCh)
-		}
-		return answerMsg
 	}
 }
 

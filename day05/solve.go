@@ -51,7 +51,7 @@ type rules struct {
 	updates   []update
 }
 
-func (d Solve) Part1(input []string, outputCh chan<- []string) int64 {
+func (d Solve) Part1(input []string, outputCh chan<- []string) string {
 	rules := parse(input)
 	middleNumSum := int64(0)
 	bannedOrderings := make(map[ordering]bool)
@@ -68,10 +68,10 @@ func (d Solve) Part1(input []string, outputCh chan<- []string) int64 {
 			l.Printf("invalid")
 		}
 	}
-	return middleNumSum
+	return strconv.FormatInt(middleNumSum, 10)
 }
 
-func (d Solve) Part2(input []string, outputCh chan<- []string) int64 {
+func (d Solve) Part2(input []string, outputCh chan<- []string) string {
 	rules := parse(input)
 	middleNumSum := int64(0)
 	bannedOrderings := make(map[ordering]bool)
@@ -88,7 +88,7 @@ func (d Solve) Part2(input []string, outputCh chan<- []string) int64 {
 			l.Printf("valid, skipping")
 		}
 	}
-	return middleNumSum
+	return strconv.FormatInt(middleNumSum, 10)
 }
 
 func parse(input []string) (rules rules) {
@@ -136,6 +136,6 @@ func parseUpdates(input []string) (updates []update) {
 	return
 }
 
-func (d Solve) CorrectAnswers() [2]int64 {
-	return [2]int64{5452, 4598}
+func (d Solve) CorrectAnswers() [2]string {
+	return [2]string{"5452", "4598"}
 }

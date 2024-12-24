@@ -1,17 +1,19 @@
 package day12
 
+import "strconv"
+
 type Solve struct{}
 
-func (d Solve) Part1(input []string, outputCh chan<- []string) int64 {
+func (d Solve) Part1(input []string, outputCh chan<- []string) string {
 	f := parse(input)
 	outputCh <- f.output()
-	return f.calculateTotalPrice(false)
+	return strconv.FormatInt(f.calculateTotalPrice(false), 10)
 }
 
-func (d Solve) Part2(input []string, outputCh chan<- []string) int64 {
+func (d Solve) Part2(input []string, outputCh chan<- []string) string {
 	f := parse(input)
 	outputCh <- f.output()
-	return f.calculateTotalPrice(true)
+	return strconv.FormatInt(f.calculateTotalPrice(true), 10)
 }
 
 type field []string
@@ -141,6 +143,6 @@ func (f field) output() (lines []string) {
 	return
 }
 
-func (d Solve) CorrectAnswers() [2]int64 {
-	return [2]int64{1464678, 877492}
+func (d Solve) CorrectAnswers() [2]string {
+	return [2]string{"1464678", "877492"}
 }

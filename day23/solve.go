@@ -3,14 +3,16 @@ package day23
 import (
 	"incrop/advent-2024/out"
 	"sort"
+	"strconv"
 	"strings"
 )
 
 type Solve struct{}
 
-func (d Solve) Part1(input []string, outputCh chan<- []string) (count int64) {
+func (d Solve) Part1(input []string, outputCh chan<- []string) string {
 	net := parse(input)
 	l := out.NewLog(outputCh)
+	count := 0
 	for _, group := range net.fullyConnectedGroups() {
 		if len(group) != 3 {
 			continue
@@ -22,12 +24,11 @@ func (d Solve) Part1(input []string, outputCh chan<- []string) (count int64) {
 			count++
 		}
 	}
-	return
+	return strconv.Itoa(count)
 }
 
-func (d Solve) Part2(input []string, outputCh chan<- []string) int64 {
+func (d Solve) Part2(input []string, outputCh chan<- []string) string {
 	net := parse(input)
-	l := out.NewLog(outputCh)
 	var maxGroup []int
 	for _, group := range net.fullyConnectedGroups() {
 		if len(group) > len(maxGroup) {
@@ -38,9 +39,8 @@ func (d Solve) Part2(input []string, outputCh chan<- []string) int64 {
 	for i, n := range maxGroup {
 		maxGroupNodes[i] = net.nodes[n]
 	}
-	l.Printf("%s", strings.Join(maxGroupNodes, ","))
-	l.Append(net.output())
-	return 0
+	outputCh <- net.output()
+	return strings.Join(maxGroupNodes, ",")
 }
 
 type network struct {
@@ -118,6 +118,6 @@ func (net network) output() (lines []string) {
 	return
 }
 
-func (d Solve) CorrectAnswers() [2]int64 {
-	return [2]int64{1054, 0}
+func (d Solve) CorrectAnswers() [2]string {
+	return [2]string{"1054", "ch,cz,di,gb,ht,ku,lu,tw,vf,vt,wo,xz,zk"}
 }

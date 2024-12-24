@@ -10,7 +10,7 @@ import (
 
 type Solve struct{}
 
-func (d Solve) Part1(input []string, outputCh chan<- []string) int64 {
+func (d Solve) Part1(input []string, outputCh chan<- []string) string {
 	calibrationResult := int64(0)
 	l := out.NewLog(outputCh)
 	for _, equation := range parse(input) {
@@ -19,10 +19,10 @@ func (d Solve) Part1(input []string, outputCh chan<- []string) int64 {
 			calibrationResult += equation.result
 		}
 	}
-	return calibrationResult
+	return strconv.FormatInt(calibrationResult, 10)
 }
 
-func (d Solve) Part2(input []string, outputCh chan<- []string) int64 {
+func (d Solve) Part2(input []string, outputCh chan<- []string) string {
 	calibrationResult := int64(0)
 	l := out.NewLog(outputCh)
 	for _, equation := range parse(input) {
@@ -31,7 +31,7 @@ func (d Solve) Part2(input []string, outputCh chan<- []string) int64 {
 			calibrationResult += equation.result
 		}
 	}
-	return calibrationResult
+	return strconv.FormatInt(calibrationResult, 10)
 }
 
 type equation struct {
@@ -110,6 +110,6 @@ func parse(input []string) (eqs []equation) {
 	return
 }
 
-func (d Solve) CorrectAnswers() [2]int64 {
-	return [2]int64{4364915411363, 38322057216320}
+func (d Solve) CorrectAnswers() [2]string {
+	return [2]string{"4364915411363", "38322057216320"}
 }

@@ -1,12 +1,13 @@
 package day06
 
 import (
+	"strconv"
 	"strings"
 )
 
 type Solve struct{}
 
-func (d Solve) Part1(input []string, outputCh chan<- []string) int64 {
+func (d Solve) Part1(input []string, outputCh chan<- []string) string {
 	f := parse(input)
 	outputCh <- f.output()
 	visitedCount := 0
@@ -24,14 +25,14 @@ func (d Solve) Part1(input []string, outputCh chan<- []string) int64 {
 		}
 	}
 	outputCh <- f.output()
-	return int64(visitedCount)
+	return strconv.Itoa(visitedCount)
 }
 
-func (d Solve) Part2(input []string, outputCh chan<- []string) int64 {
+func (d Solve) Part2(input []string, outputCh chan<- []string) string {
 	f := parse(input)
 	found := make(map[[2]int]bool)
 	f.findLoopPositionsRecusive(found, true, outputCh)
-	return int64(len(found))
+	return strconv.Itoa(len(found))
 }
 
 func (f field) findLoopPositionsRecusive(found map[[2]int]bool, blockLeft bool, outputCh chan<- []string) bool {
@@ -159,6 +160,6 @@ func (f field) output() (o []string) {
 	return
 }
 
-func (d Solve) CorrectAnswers() [2]int64 {
-	return [2]int64{5067, 1793}
+func (d Solve) CorrectAnswers() [2]string {
+	return [2]string{"5067", "1793"}
 }

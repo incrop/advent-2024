@@ -189,7 +189,7 @@ func (m model) countDayStars() (stars [26]int) {
 		}
 		for part, correctAnswer := range d.solve.CorrectAnswers() {
 			answer := d.out[part].answer
-			if answer != nil && *answer == correctAnswer {
+			if answer != "" && answer == correctAnswer {
 				stars[day]++
 			}
 		}

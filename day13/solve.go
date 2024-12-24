@@ -9,20 +9,20 @@ import (
 
 type Solve struct{}
 
-func (d Solve) Part1(input []string, outputCh chan<- []string) int64 {
+func (d Solve) Part1(input []string, outputCh chan<- []string) string {
 	ms := parse(input)
 	l := out.NewLog(outputCh)
-	return ms.solutionsCostSum(l)
+	return strconv.FormatInt(ms.solutionsCostSum(l), 10)
 }
 
-func (d Solve) Part2(input []string, outputCh chan<- []string) int64 {
+func (d Solve) Part2(input []string, outputCh chan<- []string) string {
 	ms := parse(input)
 	for i := range ms {
 		ms[i].prize[0] += 10000000000000
 		ms[i].prize[1] += 10000000000000
 	}
 	l := out.NewLog(outputCh)
-	return ms.solutionsCostSum(l)
+	return strconv.FormatInt(ms.solutionsCostSum(l), 10)
 }
 
 type machines []machine
@@ -123,6 +123,6 @@ func parse(input []string) (ms machines) {
 	return
 }
 
-func (d Solve) CorrectAnswers() [2]int64 {
-	return [2]int64{36571, 85527711500010}
+func (d Solve) CorrectAnswers() [2]string {
+	return [2]string{"36571", "85527711500010"}
 }

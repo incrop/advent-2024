@@ -2,16 +2,16 @@ package dayXX
 
 type Solve struct{}
 
-func (d Solve) Part1(input []string, outputCh chan<- []string) int64 {
+func (d Solve) Part1(input []string, outputCh chan<- []string) string {
 	p := parse(input)
 	outputCh <- p.output()
-	return 0
+	return ""
 }
 
-func (d Solve) Part2(input []string, outputCh chan<- []string) int64 {
+func (d Solve) Part2(input []string, outputCh chan<- []string) string {
 	p := parse(input)
 	outputCh <- p.output()
-	return 0
+	return ""
 }
 
 type parsed []string
@@ -27,6 +27,6 @@ func (p parsed) output() (lines []string) {
 	return p
 }
 
-func (d Solve) CorrectAnswers() [2]int64 {
-	return [2]int64{-1, -1}
+func (d Solve) CorrectAnswers() [2]string {
+	return [2]string{"not solved", "not solved"}
 }

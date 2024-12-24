@@ -10,7 +10,7 @@ import (
 
 type Solve struct{}
 
-func (d Solve) Part1(input []string, outputCh chan<- []string) int64 {
+func (d Solve) Part1(input []string, outputCh chan<- []string) string {
 	left, right := parse(input)
 	slices.Sort(left)
 	slices.Sort(right)
@@ -25,10 +25,10 @@ func (d Solve) Part1(input []string, outputCh chan<- []string) int64 {
 		diffSum += int64(diff)
 		l.Printf("abs(%d - %d) = %d", numLeft, numRight, diff)
 	}
-	return diffSum
+	return strconv.FormatInt(diffSum, 10)
 }
 
-func (d Solve) Part2(input []string, outputCh chan<- []string) int64 {
+func (d Solve) Part2(input []string, outputCh chan<- []string) string {
 	left, right := parse(input)
 	rightFreq := make(map[int]int)
 	for _, numRight := range right {
@@ -41,7 +41,7 @@ func (d Solve) Part2(input []string, outputCh chan<- []string) int64 {
 		similarityScore += int64(similarity)
 		l.Printf("%d * %d = %d", numLeft, rightFreq[numLeft], similarity)
 	}
-	return similarityScore
+	return strconv.FormatInt(similarityScore, 10)
 }
 
 func parse(input []string) ([]int, []int) {
@@ -62,6 +62,6 @@ func parse(input []string) ([]int, []int) {
 	return left, right
 }
 
-func (d Solve) CorrectAnswers() [2]int64 {
-	return [2]int64{765748, 27732508}
+func (d Solve) CorrectAnswers() [2]string {
+	return [2]string{"765748", "27732508"}
 }

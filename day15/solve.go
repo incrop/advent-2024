@@ -1,12 +1,13 @@
 package day15
 
 import (
+	"strconv"
 	"strings"
 )
 
 type Solve struct{}
 
-func (d Solve) Part1(input []string, outputCh chan<- []string) int64 {
+func (d Solve) Part1(input []string, outputCh chan<- []string) string {
 	f := parse(input, false)
 	outputCh <- f.output()
 	i := 0
@@ -17,10 +18,10 @@ func (d Solve) Part1(input []string, outputCh chan<- []string) int64 {
 		}
 	}
 	outputCh <- f.output()
-	return f.boxesGpsCoordSum()
+	return strconv.FormatInt(f.boxesGpsCoordSum(), 10)
 }
 
-func (d Solve) Part2(input []string, outputCh chan<- []string) int64 {
+func (d Solve) Part2(input []string, outputCh chan<- []string) string {
 	f := parse(input, true)
 	outputCh <- f.output()
 	i := 0
@@ -30,7 +31,7 @@ func (d Solve) Part2(input []string, outputCh chan<- []string) int64 {
 			outputCh <- f.output()
 		}
 	}
-	return f.boxesGpsCoordSum()
+	return strconv.FormatInt(f.boxesGpsCoordSum(), 10)
 }
 
 type coord [2]int
@@ -201,6 +202,6 @@ func (f field) output() (lines []string) {
 	return
 }
 
-func (d Solve) CorrectAnswers() [2]int64 {
-	return [2]int64{1442192, 1448458}
+func (d Solve) CorrectAnswers() [2]string {
+	return [2]string{"1442192", "1448458"}
 }

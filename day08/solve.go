@@ -1,10 +1,13 @@
 package day08
 
-import "iter"
+import (
+	"iter"
+	"strconv"
+)
 
 type Solve struct{}
 
-func (d Solve) Part1(input []string, outputCh chan<- []string) int64 {
+func (d Solve) Part1(input []string, outputCh chan<- []string) string {
 	f := parse(input)
 	antinodeCoords := make(map[coord]bool)
 	for _, coords := range f.anntennaCoords {
@@ -18,10 +21,10 @@ func (d Solve) Part1(input []string, outputCh chan<- []string) int64 {
 			outputCh <- f.output(antinodeCoords)
 		}
 	}
-	return int64(len(antinodeCoords))
+	return strconv.Itoa(len(antinodeCoords))
 }
 
-func (d Solve) Part2(input []string, outputCh chan<- []string) int64 {
+func (d Solve) Part2(input []string, outputCh chan<- []string) string {
 	f := parse(input)
 	antinodeCoords := make(map[coord]bool)
 	for _, coords := range f.anntennaCoords {
@@ -36,7 +39,7 @@ func (d Solve) Part2(input []string, outputCh chan<- []string) int64 {
 			outputCh <- f.output(antinodeCoords)
 		}
 	}
-	return int64(len(antinodeCoords))
+	return strconv.Itoa(len(antinodeCoords))
 }
 
 type coord [2]int
@@ -119,6 +122,6 @@ func (f field) output(antinodeCoords map[coord]bool) (lines []string) {
 	return
 }
 
-func (d Solve) CorrectAnswers() [2]int64 {
-	return [2]int64{318, 1126}
+func (d Solve) CorrectAnswers() [2]string {
+	return [2]string{"318", "1126"}
 }

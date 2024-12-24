@@ -10,7 +10,7 @@ import (
 
 type Solve struct{}
 
-func (d Solve) Part1(input []string, outputCh chan<- []string) (sum int64) {
+func (d Solve) Part1(input []string, outputCh chan<- []string) string {
 	s := parse(input)
 	for range 2000 {
 		for i := range s {
@@ -18,13 +18,14 @@ func (d Solve) Part1(input []string, outputCh chan<- []string) (sum int64) {
 		}
 	}
 	outputCh <- s.output()
+	sum := int64(0)
 	for _, secret := range s {
 		sum += secret
 	}
-	return sum
+	return strconv.FormatInt(sum, 10)
 }
 
-func (d Solve) Part2(input []string, outputCh chan<- []string) int64 {
+func (d Solve) Part2(input []string, outputCh chan<- []string) string {
 	s := parse(input)
 
 	profitPerDiffWindow := map[[4]int8]int64{}
@@ -60,7 +61,7 @@ func (d Solve) Part2(input []string, outputCh chan<- []string) int64 {
 			l.Printf("%v: not found", maxDiffWindow)
 		}
 	}
-	return maxProfit
+	return strconv.FormatInt(maxProfit, 10)
 }
 
 func priceAndDiffSlidingWindow(secret int64, secretUpdatesCount int) iter.Seq2[int8, [4]int8] {
@@ -117,6 +118,6 @@ func (s secrets) output() (lines []string) {
 	return
 }
 
-func (d Solve) CorrectAnswers() [2]int64 {
-	return [2]int64{15303617151, 1727}
+func (d Solve) CorrectAnswers() [2]string {
+	return [2]string{"15303617151", "1727"}
 }

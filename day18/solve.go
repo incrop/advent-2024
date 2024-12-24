@@ -1,6 +1,7 @@
 package day18
 
 import (
+	"fmt"
 	"log"
 	"slices"
 	"strconv"
@@ -9,14 +10,14 @@ import (
 
 type Solve struct{}
 
-func (d Solve) Part1(input []string, outputCh chan<- []string) int64 {
+func (d Solve) Part1(input []string, outputCh chan<- []string) string {
 	f := parse(input)
 	path := f.findShortestPath(f.firstBytes)
 	outputCh <- f.output(f.firstBytes, path)
-	return int64(len(path) - 1)
+	return strconv.Itoa(len(path) - 1)
 }
 
-func (d Solve) Part2(input []string, outputCh chan<- []string) int64 {
+func (d Solve) Part2(input []string, outputCh chan<- []string) string {
 	f := parse(input)
 	outputCh <- f.output(f.firstBytes, nil)
 	minBlocked, maxBlocked := 0, len(f.byteCoords)
@@ -33,7 +34,7 @@ func (d Solve) Part2(input []string, outputCh chan<- []string) int64 {
 	path := f.findShortestPath(minBlocked)
 	outputCh <- f.output(minBlocked, path)
 	blockCoord := f.byteCoords[minBlocked]
-	return int64(blockCoord[0]*1000 + blockCoord[1])
+	return fmt.Sprintf("%d,%d", blockCoord[0], blockCoord[1])
 }
 
 type coord [2]int
@@ -147,6 +148,6 @@ func (f *field) output(numBlocked int, path []coord) (lines []string) {
 	return
 }
 
-func (d Solve) CorrectAnswers() [2]int64 {
-	return [2]int64{252, 5060}
+func (d Solve) CorrectAnswers() [2]string {
+	return [2]string{"252", "5,60"}
 }

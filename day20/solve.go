@@ -3,22 +3,23 @@ package day20
 import (
 	"fmt"
 	"slices"
+	"strconv"
 )
 
 type Solve struct{}
 
-func (d Solve) Part1(input []string, outputCh chan<- []string) int64 {
+func (d Solve) Part1(input []string, outputCh chan<- []string) string {
 	f := parse(input)
 	total, output := sumAndSortOutput(f.countCheats(2, 100))
 	outputCh <- output
-	return total
+	return strconv.FormatInt(total, 10)
 }
 
-func (d Solve) Part2(input []string, outputCh chan<- []string) int64 {
+func (d Solve) Part2(input []string, outputCh chan<- []string) string {
 	f := parse(input)
 	total, output := sumAndSortOutput(f.countCheats(20, 100))
 	outputCh <- output
-	return total
+	return strconv.FormatInt(total, 10)
 }
 
 func sumAndSortOutput(cheatsBySave map[int]int) (total int64, output []string) {
@@ -129,6 +130,6 @@ func parse(input []string) (f field) {
 	return
 }
 
-func (d Solve) CorrectAnswers() [2]int64 {
-	return [2]int64{1323, 983905}
+func (d Solve) CorrectAnswers() [2]string {
+	return [2]string{"1323", "983905"}
 }

@@ -11,15 +11,15 @@ import (
 
 type Solve struct{}
 
-func (d Solve) Part1(input []string, outputCh chan<- []string) int64 {
+func (d Solve) Part1(input []string, outputCh chan<- []string) string {
 	c := parse(input)
 	outputCh <- c.show()
 	res := c.runToHalt()
 	outputCh <- c.show()
-	return res
+	return strconv.FormatInt(res, 10)
 }
 
-func (d Solve) Part2(input []string, outputCh chan<- []string) int64 {
+func (d Solve) Part2(input []string, outputCh chan<- []string) string {
 	c0 := parse(input)
 	var find func(currA int64) int64
 	find = func(currA int64) int64 {
@@ -45,7 +45,7 @@ func (d Solve) Part2(input []string, outputCh chan<- []string) int64 {
 		c0.a = res
 		outputCh <- c0.show()
 	}
-	return res
+	return strconv.FormatInt(res, 10)
 }
 
 func (c *computer) runToHalt() (finalOutput int64) {
@@ -251,6 +251,6 @@ func (c *computer) calcInstruction() (res int64, tgt *int64, halt bool) {
 	panic("idk")
 }
 
-func (d Solve) CorrectAnswers() [2]int64 {
-	return [2]int64{236216121, 90938893795561}
+func (d Solve) CorrectAnswers() [2]string {
+	return [2]string{"236216121", "90938893795561"}
 }

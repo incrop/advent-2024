@@ -10,7 +10,8 @@ import (
 
 type Solve struct{}
 
-func (d Solve) Part1(input []string, outputCh chan<- []string) (complexitySum int64) {
+func (d Solve) Part1(input []string, outputCh chan<- []string) string {
+	complexitySum := int64(0)
 	for _, code := range parse(input) {
 		c := newChain(
 			directionalKeypad(),
@@ -32,16 +33,17 @@ func (d Solve) Part1(input []string, outputCh chan<- []string) (complexitySum in
 		}
 		complexitySum += minLength * int64(numCodePart)
 	}
-	return
+	return strconv.FormatInt(complexitySum, 10)
 }
 
-func (d Solve) Part2(input []string, outputCh chan<- []string) (complexitySum int64) {
+func (d Solve) Part2(input []string, outputCh chan<- []string) string {
 	keypads := []*keypad{}
 	for range 25 {
 		keypads = append(keypads, directionalKeypad())
 	}
 	keypads = append(keypads, numericKeypad())
 	l := out.NewLog(outputCh)
+	complexitySum := int64(0)
 	for _, code := range parse(input) {
 		c := newChain(keypads...)
 		_, minLength := c.shortestInputForOutput(code, false)
@@ -53,7 +55,7 @@ func (d Solve) Part2(input []string, outputCh chan<- []string) (complexitySum in
 		l.Printf("%03d * %d = %d", numCodePart, minLength, complexity)
 		complexitySum += complexity
 	}
-	return
+	return strconv.FormatInt(complexitySum, 10)
 }
 
 type keypad struct {
@@ -268,6 +270,6 @@ func parse(input []string) (codes []string) {
 	return append(codes, input...)
 }
 
-func (d Solve) CorrectAnswers() [2]int64 {
-	return [2]int64{123096, 154517692795352}
+func (d Solve) CorrectAnswers() [2]string {
+	return [2]string{"123096", "154517692795352"}
 }

@@ -2,26 +2,27 @@ package day16
 
 import (
 	"container/heap"
+	"strconv"
 )
 
 type Solve struct{}
 
-func (d Solve) Part1(input []string, outputCh chan<- []string) int64 {
+func (d Solve) Part1(input []string, outputCh chan<- []string) string {
 	f := parse(input)
 	outputCh <- f.output()
 	exitState, _ := f.cheapestPathToExit()
 	outputCh <- f.output()
-	return exitState.score
+	return strconv.FormatInt(exitState.score, 10)
 }
 
-func (d Solve) Part2(input []string, outputCh chan<- []string) int64 {
+func (d Solve) Part2(input []string, outputCh chan<- []string) string {
 	f := parse(input)
 	outputCh <- f.output()
 	exitState, visited := f.cheapestPathToExit()
 	outputCh <- f.output()
 	bestTilesCount := f.bestTilesCount(exitState, visited)
 	outputCh <- f.output()
-	return int64(bestTilesCount)
+	return strconv.Itoa(bestTilesCount)
 }
 
 type coord [2]int
@@ -171,6 +172,6 @@ func (f field) output() (lines []string) {
 	return
 }
 
-func (d Solve) CorrectAnswers() [2]int64 {
-	return [2]int64{72400, 435}
+func (d Solve) CorrectAnswers() [2]string {
+	return [2]string{"72400", "435"}
 }

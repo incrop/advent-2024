@@ -3,23 +3,24 @@ package day09
 import (
 	"container/heap"
 	"sort"
+	"strconv"
 	"strings"
 )
 
 type Solve struct{}
 
-func (d Solve) Part1(input []string, outputCh chan<- []string) int64 {
+func (d Solve) Part1(input []string, outputCh chan<- []string) string {
 	blocks := parse(input)
 	blocks = blocks.compactFragmenting()
 	outputCh <- blocks.output()
-	return blocks.checksum()
+	return strconv.FormatInt(blocks.checksum(), 10)
 }
 
-func (d Solve) Part2(input []string, outputCh chan<- []string) int64 {
+func (d Solve) Part2(input []string, outputCh chan<- []string) string {
 	blocks := parse(input)
 	blocks = blocks.compactContinuous()
 	outputCh <- blocks.output()
-	return blocks.checksum()
+	return strconv.FormatInt(blocks.checksum(), 10)
 }
 
 type block struct {
@@ -219,6 +220,6 @@ func (blocks blocks) output() (lines []string) {
 	return lines
 }
 
-func (d Solve) CorrectAnswers() [2]int64 {
-	return [2]int64{6259790630969, 6289564433984}
+func (d Solve) CorrectAnswers() [2]string {
+	return [2]string{"6259790630969", "6289564433984"}
 }

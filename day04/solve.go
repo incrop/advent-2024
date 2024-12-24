@@ -1,8 +1,10 @@
 package day04
 
+import "strconv"
+
 type Solve struct{}
 
-func (d Solve) Part1(input []string, outputCh chan<- []string) int64 {
+func (d Solve) Part1(input []string, outputCh chan<- []string) string {
 	xmasCount := int64(0)
 	f := fieldFrom(input)
 	for i, line := range input {
@@ -15,7 +17,7 @@ func (d Solve) Part1(input []string, outputCh chan<- []string) int64 {
 			}
 		}
 	}
-	return xmasCount
+	return strconv.FormatInt(xmasCount, 10)
 }
 
 func xmasDirections(input []string, i, j int) (dirs [][2]int) {
@@ -50,7 +52,7 @@ func readsXmsInThisDirection(input []string, i, j, di, dj int) bool {
 	return true
 }
 
-func (d Solve) Part2(input []string, outputCh chan<- []string) int64 {
+func (d Solve) Part2(input []string, outputCh chan<- []string) string {
 	xmasCount := int64(0)
 	f := fieldFrom(input)
 	for i, line := range input {
@@ -64,7 +66,7 @@ func (d Solve) Part2(input []string, outputCh chan<- []string) int64 {
 		}
 	}
 	outputCh <- f.output()
-	return xmasCount
+	return strconv.FormatInt(xmasCount, 10)
 }
 
 func hasMasInXShapeAt(input []string, i, j int) bool {
@@ -129,6 +131,6 @@ func (f field) output() (o []string) {
 	return
 }
 
-func (d Solve) CorrectAnswers() [2]int64 {
-	return [2]int64{2569, 1998}
+func (d Solve) CorrectAnswers() [2]string {
+	return [2]string{"2569", "1998"}
 }

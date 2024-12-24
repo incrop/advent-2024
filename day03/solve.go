@@ -10,7 +10,7 @@ import (
 
 type Solve struct{}
 
-func (d Solve) Part1(input []string, outputCh chan<- []string) int64 {
+func (d Solve) Part1(input []string, outputCh chan<- []string) string {
 	mulSum := int64(0)
 	l := out.NewLog(outputCh)
 	for _, e := range parse(input) {
@@ -20,10 +20,10 @@ func (d Solve) Part1(input []string, outputCh chan<- []string) int64 {
 			mulSum += int64(e.x * e.y)
 		}
 	}
-	return mulSum
+	return strconv.FormatInt(mulSum, 10)
 }
 
-func (d Solve) Part2(input []string, outputCh chan<- []string) int64 {
+func (d Solve) Part2(input []string, outputCh chan<- []string) string {
 	doing := true
 	mulSum := int64(0)
 	l := out.NewLog(outputCh)
@@ -45,7 +45,7 @@ func (d Solve) Part2(input []string, outputCh chan<- []string) int64 {
 			}
 		}
 	}
-	return mulSum
+	return strconv.FormatInt(mulSum, 10)
 }
 
 type expr interface{}
@@ -81,6 +81,6 @@ func parse(input []string) (expr []expr) {
 	return
 }
 
-func (d Solve) CorrectAnswers() [2]int64 {
-	return [2]int64{188741603, 67269798}
+func (d Solve) CorrectAnswers() [2]string {
+	return [2]string{"188741603", "67269798"}
 }
